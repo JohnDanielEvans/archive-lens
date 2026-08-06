@@ -1,3 +1,4 @@
+import { provideHttpClient, withFetch } from '@angular/common/http';
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 
@@ -10,5 +11,8 @@ export const appConfig: ApplicationConfig = {
     // data straight into matching component inputs, so pages don't have to
     // inject ActivatedRoute.
     provideRouter(routes, withComponentInputBinding()),
+    // withFetch() uses the Fetch API instead of XMLHttpRequest — the modern
+    // default, and required for anything streaming later.
+    provideHttpClient(withFetch()),
   ],
 };
