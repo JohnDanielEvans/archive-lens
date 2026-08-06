@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { AppComponent } from './app.component';
 
 /**
@@ -9,6 +10,9 @@ describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AppComponent],
+      // routerLink needs a Router instance; an empty route table is enough
+      // because these specs only assert structure, never navigation.
+      providers: [provideRouter([])],
     }).compileComponents();
   });
 

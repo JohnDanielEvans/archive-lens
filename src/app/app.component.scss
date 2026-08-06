@@ -36,12 +36,40 @@
 }
 
 .site-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1.5rem;
   padding: 1rem;
   border-bottom: 1px solid #ddd;
 
   h1 {
     margin: 0;
     font-size: 1.5rem;
+  }
+
+  nav ul {
+    display: flex;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  nav a {
+    color: #0b5fff;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    // routerLinkActive adds this class on the matching route. The visual
+    // change is backed by aria-current="page" for non-sighted users.
+    &.is-active {
+      font-weight: 600;
+      text-decoration: underline;
+    }
   }
 }
 

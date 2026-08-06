@@ -1,8 +1,14 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
 
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes)]
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    // withComponentInputBinding() feeds route params, query params and route
+    // data straight into matching component inputs, so pages don't have to
+    // inject ActivatedRoute.
+    provideRouter(routes, withComponentInputBinding()),
+  ],
 };
