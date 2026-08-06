@@ -95,8 +95,16 @@ export class SearchFormComponent {
    */
   readonly initialQuery = input('');
 
-  /** Emits the trimmed query when the form is submitted and valid. */
-  readonly search = output<string>();
+  /**
+   * Emits the trimmed query when the form is submitted and valid.
+   *
+   * Deliberately NOT named `search`: <input type="search"> fires a native
+   * `search` event on Enter and on the clear button, that event bubbles to
+   * this component's host element, and a `(search)` binding on the host
+   * receives it alongside the real output — handing the parent an Event
+   * object instead of a query string.
+   */
+  readonly querySubmit = output<string>();
 
   private readonly queryInput =
     viewChild.required<ElementRef<HTMLInputElement>>('queryInput');
@@ -151,6 +159,6 @@ export class SearchFormComponent {
       return;
     }
 
-    this.search.emit(this.queryControl.value.trim());
+    this.querySubmit.emit(this.queryControl.value.trim());
   }
 }

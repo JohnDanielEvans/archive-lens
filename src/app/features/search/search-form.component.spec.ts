@@ -51,7 +51,7 @@ describe('SearchFormComponent', () => {
 
   it('emits the query when the form is valid', () => {
     const emitted: string[] = [];
-    component.search.subscribe((query) => emitted.push(query));
+    component.querySubmit.subscribe((query) => emitted.push(query));
 
     setQuery('lighthouse');
     submit();
@@ -61,7 +61,7 @@ describe('SearchFormComponent', () => {
 
   it('trims the query before emitting', () => {
     const emitted: string[] = [];
-    component.search.subscribe((query) => emitted.push(query));
+    component.querySubmit.subscribe((query) => emitted.push(query));
 
     setQuery('  lighthouse  ');
     submit();
@@ -69,9 +69,24 @@ describe('SearchFormComponent', () => {
     expect(emitted).toEqual(['lighthouse']);
   });
 
+  it('does not emit when the input fires its native search event', () => {
+    // <input type="search"> fires a native `search` event on Enter and on the
+    // clear button, and it bubbles to this component's host. If the output is
+    // ever renamed back to `search`, a (search) binding on the host would
+    // receive that Event instead of a query string.
+    const emitted: string[] = [];
+    component.querySubmit.subscribe((query) => emitted.push(query));
+
+    setQuery('lighthouse');
+    input().dispatchEvent(new Event('search', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(emitted).toEqual([]);
+  });
+
   it('does not emit when the field is empty', () => {
     const emitted: string[] = [];
-    component.search.subscribe((query) => emitted.push(query));
+    component.querySubmit.subscribe((query) => emitted.push(query));
 
     submit();
 
@@ -80,7 +95,7 @@ describe('SearchFormComponent', () => {
 
   it('rejects whitespace-only input that would satisfy minLength', () => {
     const emitted: string[] = [];
-    component.search.subscribe((query) => emitted.push(query));
+    component.querySubmit.subscribe((query) => emitted.push(query));
 
     setQuery('   ');
     submit();

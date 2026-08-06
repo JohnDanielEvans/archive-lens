@@ -1,6 +1,6 @@
 <h2>Search the collection</h2>
 
-<app-search-form [initialQuery]="q()" (search)="onSearch($event)" />
+<app-search-form [initialQuery]="q()" (querySubmit)="onSearch($event)" />
 
 <!--
   Always rendered, never conditional: screen readers watch this element for
