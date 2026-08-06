@@ -62,6 +62,17 @@ describe('SearchPageComponent', () => {
     httpMock.expectNone(() => true);
   });
 
+  it('survives an absent query parameter', () => {
+    // The router binds `undefined` when ?q= is missing entirely, which
+    // overrides the input's declared default. Visiting /search used to throw.
+    fixture.componentRef.setInput('q', undefined);
+    fixture.detectChanges();
+
+    expect(text()).toContain('Enter a search term');
+    expect(fixture.nativeElement.querySelector('#search-query').value).toBe('');
+    httpMock.expectNone(() => true);
+  });
+
   it('shows a loading state while the request is in flight', () => {
     setQuery('lighthouse');
 

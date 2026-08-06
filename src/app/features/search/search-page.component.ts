@@ -50,8 +50,14 @@ export class SearchPageComponent {
    * Bound from the `q` URL query parameter by withComponentInputBinding().
    * The URL is the single source of truth: a search is shareable, the back
    * button works, and a reload restores the same results.
+   *
+   * The transform is load-bearing. When the parameter is absent the router
+   * binds `undefined`, which overrides the declared default of '' — so
+   * without this, visiting /search with no query throws on every read.
    */
-  readonly q = input('');
+  readonly q = input('', {
+    transform: (value: string | undefined) => value ?? '',
+  });
 
   private readonly query = computed(() => this.q().trim());
 
