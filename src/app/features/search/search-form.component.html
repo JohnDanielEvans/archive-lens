@@ -1,0 +1,30 @@
+<!--
+  role="search" makes this a search landmark, so assistive tech can jump
+  straight to it. novalidate suppresses the browser's own validation bubbles
+  so our messages are the only ones shown.
+-->
+<form role="search" novalidate [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="field">
+    <label for="search-query">Search the collection</label>
+
+    <p id="search-query-hint" class="hint">
+      Try a place, subject, or person — for example, lighthouse.
+    </p>
+
+    <input
+      #queryInput
+      id="search-query"
+      type="search"
+      formControlName="query"
+      autocomplete="off"
+      [attr.aria-invalid]="showError"
+      [attr.aria-describedby]="describedBy"
+    />
+
+    @if (showError) {
+      <p id="search-query-error" class="error">{{ errorMessage }}</p>
+    }
+  </div>
+
+  <button type="submit">Search</button>
+</form>
