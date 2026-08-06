@@ -1,0 +1,46 @@
+<h2>Search the collection</h2>
+
+<app-search-form [initialQuery]="q()" (search)="onSearch($event)" />
+
+<!--
+  Always rendered, never conditional: screen readers watch this element for
+  text changes. Adding the element and its text at the same moment usually
+  results in nothing being announced.
+
+  aria-hidden="true" on the visible equivalents below stops everything being
+  announced twice.
+-->
+<p class="visually-hidden" role="status">{{ statusMessage() }}</p>
+
+@if (status() === 'idle') {
+  <p>Enter a search term above to explore the collection.</p>
+}
+
+@if (status() === 'loading') {
+  <p aria-hidden="true">Searching…</p>
+}
+
+@if (status() === 'error') {
+  <p class="error" aria-hidden="true">{{ statusMessage() }}</p>
+}
+
+@if (results(); as found) {
+  @if (found.items.length === 0) {
+    <p aria-hidden="true">No results found. Try a different search term.</p>
+  } @else {
+    <p aria-hidden="true">{{ found.total.toLocaleString() }} results found.</p>
+
+    <ul class="results">
+      @for (item of found.items; track item.id) {
+        <li>
+          <a [href]="item.url" target="_blank" rel="noopener noreferrer">
+            {{ item.title }}
+          </a>
+          @if (item.date) {
+            <span> — {{ item.date }}</span>
+          }
+        </li>
+      }
+    </ul>
+  }
+}

@@ -5,7 +5,9 @@
 -->
 <form role="search" novalidate [formGroup]="form" (ngSubmit)="onSubmit()">
   <div class="field">
-    <label for="search-query">Search the collection</label>
+    <!-- Deliberately not "Search the collection": that duplicates the page
+         heading, which screen-reader users would hear twice in a row. -->
+    <label for="search-query">Search term</label>
 
     <p id="search-query-hint" class="hint">
       Try a place, subject, or person — for example, lighthouse.

@@ -1,4 +1,13 @@
-import { Component, ElementRef, inject, output, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import {
   AbstractControl,
   NonNullableFormBuilder,
@@ -80,6 +89,12 @@ function nonBlank(control: AbstractControl<string>): ValidationErrors | null {
 export class SearchFormComponent {
   private readonly formBuilder = inject(NonNullableFormBuilder);
 
+  /**
+   * Seed value, supplied by the page from the URL. Keeps the field populated
+   * on reload, on a shared link, and when the user presses Back.
+   */
+  readonly initialQuery = input('');
+
   /** Emits the trimmed query when the form is submitted and valid. */
   readonly search = output<string>();
 
@@ -92,6 +107,14 @@ export class SearchFormComponent {
 
   /** Errors stay hidden until the user has actually tried something. */
   private readonly submitted = signal(false);
+
+  constructor() {
+    // Runs whenever initialQuery changes — including Back/Forward navigation,
+    // which alters the URL without recreating the component.
+    effect(() => {
+      this.form.controls.query.setValue(this.initialQuery());
+    });
+  }
 
   get queryControl() {
     return this.form.controls.query;

@@ -80,6 +80,11 @@ export function resolveItemId(
   return null;
 }
 
+/** Canonical public URL for an item id. */
+function itemUrl(id: string): string {
+  return `https://www.loc.gov/item/${id}/`;
+}
+
 /**
  * Map one search result. Returns null when the record can't be represented —
  * missing item id or missing title — so callers can filter it out.
@@ -87,14 +92,15 @@ export function resolveItemId(
 export function toCollectionItem(dto: LocSearchResultDto): CollectionItem | null {
   const id = resolveItemId(dto.id, dto.aka);
   const title = dto.title?.trim();
-  const url = toAbsoluteUrl(dto.url) ?? toAbsoluteUrl(dto.id);
 
-  if (!id || !title || !url) return null;
+  if (!id || !title) return null;
 
   return {
     id,
     title,
-    url,
+    // Derived from the resolved id rather than taken from `url`, which often
+    // points at the lccn.loc.gov catalogue page even when an /item/ URL exists.
+    url: itemUrl(id),
     date: dto.date?.trim() || null,
     // image_url is present but empty for ~60% of results, so [0] is often
     // undefined; toAbsoluteUrl turns that into null.
@@ -131,7 +137,7 @@ export function toCollectionItemDetail(dto: LocItemDto): CollectionItemDetail | 
   return {
     id,
     title,
-    url: toAbsoluteUrl(dto.id) ?? `https://www.loc.gov/item/${id}/`,
+    url: itemUrl(id),
     date: dto.date?.trim() || firstOrNull(toArray(dto.created_published)),
     // image_url is present but empty for ~60% of results, so [0] is often
     // undefined; toAbsoluteUrl turns that into null.
