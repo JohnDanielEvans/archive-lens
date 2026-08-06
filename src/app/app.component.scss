@@ -1,0 +1,66 @@
+// Styles here are scoped to AppComponent only — Angular rewrites these
+// selectors to match a generated attribute on this component's elements.
+
+// <app-root> is an inline element by default, so the page layout has to
+// start here. A full-height column lets `flex: 1` on <main> push the
+// footer to the bottom on short pages.
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+// Hiding is handled by the global .visually-hidden class in the template.
+// This block only has to undo it on focus — and it must undo every property,
+// since missing one (usually clip-path) leaves the link "visible" but
+// clipped to nothing. The :focus selector outranks .visually-hidden on
+// specificity, so source order doesn't matter.
+.skip-link {
+  &:focus {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    width: auto;
+    height: auto;
+    padding: 0.5rem 1rem;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    clip-path: none;
+    white-space: normal;
+    border: none;
+    background-color: #0b5fff;
+    color: #fff;
+    z-index: 1000; // stay above any future sticky/overlaying header
+  }
+}
+
+.site-header {
+  padding: 1rem;
+  border-bottom: 1px solid #ddd;
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+}
+
+main {
+  flex: 1; // fill the space between header and footer
+
+  // Focus lands here when the skip link is used. We want the focus *move*
+  // without drawing a ring around the entire page region.
+  &:focus {
+    outline: none;
+  }
+}
+
+.site-footer {
+  padding: 1rem;
+  border-top: 1px solid #ddd;
+  font-size: 0.875rem;
+
+  p {
+    margin: 0;
+  }
+}
