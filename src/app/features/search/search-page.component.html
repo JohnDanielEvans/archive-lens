@@ -26,7 +26,14 @@
 
 @if (results(); as found) {
   @if (found.items.length === 0) {
-    <p aria-hidden="true">No results found. Try a different search term.</p>
+    <div class="empty">
+      <p><strong>No results found for “{{ q() }}”.</strong></p>
+      <ul>
+        <li>Check the spelling.</li>
+        <li>Try a broader term — “lighthouse” rather than “Biloxi lighthouse 1920”.</li>
+        <li>Try a place, subject, or person’s name.</li>
+      </ul>
+    </div>
   } @else {
     <p aria-hidden="true">{{ found.total.toLocaleString() }} results found.</p>
 
@@ -39,5 +46,36 @@
         </li>
       }
     </ul>
+
+    <!--
+      Page links are real links, not buttons: they change the URL, so they
+      should be openable in a new tab and reachable by the back button.
+      Unavailable directions are omitted rather than shown disabled — there is
+      nothing useful for a keyboard user to land on.
+    -->
+    @if (found.hasPrevious || found.hasNext) {
+      <nav class="pagination" aria-label="Search results pages">
+        @if (found.hasPrevious) {
+          <a
+            rel="prev"
+            [routerLink]="['/search']"
+            [queryParams]="{ q: q(), page: page() - 1 }"
+            >Previous page</a
+          >
+        }
+
+        <p class="pagination__status">Page {{ page() }}</p>
+
+        @if (found.hasNext) {
+          <a
+            rel="next"
+            class="pagination__next"
+            [routerLink]="['/search']"
+            [queryParams]="{ q: q(), page: page() + 1 }"
+            >Next page</a
+          >
+        }
+      </nav>
+    }
   }
 }

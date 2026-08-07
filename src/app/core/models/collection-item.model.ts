@@ -33,9 +33,18 @@ export interface CollectionItemDetail extends CollectionItem {
 /** One page of search results, plus what the UI needs to describe it. */
 export interface SearchResults {
   readonly items: readonly CollectionItem[];
-  /** Total matches reported by the API — may exceed items.length, both
-   *  because of paging and because unlinkable records are filtered out. */
+  /**
+   * Matches reported by the API. Treat as approximate: LoC under-reports it,
+   * and pages beyond total/pageSize still return real records. It is fine for
+   * display but must not be used to compute how many pages exist.
+   */
   readonly total: number;
   readonly page: number;
   readonly pageSize: number;
+  /**
+   * Taken from the API's own next/previous links, which are the only
+   * trustworthy signal for whether more pages exist.
+   */
+  readonly hasNext: boolean;
+  readonly hasPrevious: boolean;
 }

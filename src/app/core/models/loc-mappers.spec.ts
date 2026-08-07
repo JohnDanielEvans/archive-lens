@@ -153,6 +153,36 @@ describe('toSearchResults', () => {
     expect(results.items).toEqual([]);
     expect(results.total).toBe(0);
   });
+
+  it('derives page availability from the API links, not from total', () => {
+    // total/perpage would imply ~3037 pages here; only the links are reliable.
+    const results = toSearchResults(
+      {
+        results: [photoResult],
+        pagination: {
+          current: 1,
+          perpage: 25,
+          total: 75912,
+          next: 'https://www.loc.gov/search/?sp=2',
+          previous: null,
+        },
+      },
+      1,
+    );
+
+    expect(results.hasNext).toBeTrue();
+    expect(results.hasPrevious).toBeFalse();
+  });
+
+  it('reports no further pages when the API omits both links', () => {
+    const results = toSearchResults(
+      { results: [photoResult], pagination: { current: 1, perpage: 25, total: 1 } },
+      1,
+    );
+
+    expect(results.hasNext).toBeFalse();
+    expect(results.hasPrevious).toBeFalse();
+  });
 });
 
 describe('toCollectionItemDetail', () => {

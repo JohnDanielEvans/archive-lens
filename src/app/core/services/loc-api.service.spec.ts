@@ -80,7 +80,7 @@ describe('LocApiService', () => {
         error: (error: LocApiError) => {
           expect(error).toBeInstanceOf(LocApiError);
           expect(error.status).toBe(0);
-          expect(error.message).toContain('Could not reach');
+          expect(error.message).toContain('too many requests');
           done();
         },
       });
@@ -88,6 +88,24 @@ describe('LocApiService', () => {
       httpMock
         .expectOne((r) => r.url === 'https://www.loc.gov/search/')
         .error(new ProgressEvent('network error'));
+    });
+
+    it('explains a rate-limit response', (done) => {
+      service.search('lighthouse').subscribe({
+        error: (error: LocApiError) => {
+          expect(error.status).toBe(429);
+          expect(error.message).toContain('Too many requests');
+          done();
+        },
+      });
+
+      // LoC answers rate-limited requests with a Cloudflare HTML page.
+      httpMock
+        .expectOne((r) => r.url === 'https://www.loc.gov/search/')
+        .flush('<!DOCTYPE html><html><title>Just a moment...</title></html>', {
+          status: 429,
+          statusText: 'Too Many Requests',
+        });
     });
 
     it('reports a server failure without leaking the status text', (done) => {

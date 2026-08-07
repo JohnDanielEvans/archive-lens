@@ -1,7 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
-import { catchError, of, startWith, switchMap } from 'rxjs';
+import { Router, RouterLink } from '@angular/router';
+import { catchError, distinctUntilChanged, of, startWith, switchMap } from 'rxjs';
 
 import { SearchResults } from '../../core/models/collection-item.model';
 import { LocApiError, LocApiService } from '../../core/services/loc-api.service';
@@ -21,7 +21,7 @@ type SearchState =
 
 @Component({
   selector: 'app-search-page',
-  imports: [SearchFormComponent, ItemCardComponent],
+  imports: [SearchFormComponent, ItemCardComponent, RouterLink],
   templateUrl: './search-page.component.html',
   styles: `
     .results {
@@ -42,6 +42,58 @@ type SearchState =
       border: 2px solid #b3261e;
       border-radius: 4px;
     }
+
+    /* Not aria-hidden, unlike the other visible state text: the live region
+       announces only the short "No results found" sentence, and these
+       suggestions are genuinely useful to read. */
+    .empty {
+      max-width: 40rem;
+      padding: 1rem 1.25rem;
+      background: #f7f7f7;
+      border-radius: 6px;
+    }
+
+    .empty p {
+      margin: 0 0 0.5rem;
+    }
+
+    .empty ul {
+      margin: 0;
+      padding-left: 1.25rem;
+    }
+
+    .empty li + li {
+      margin-top: 0.25rem;
+    }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .pagination a {
+      padding: 0.5rem 1rem;
+      color: #0b5fff;
+      text-decoration: none;
+      border: 1px solid currentcolor;
+      border-radius: 4px;
+    }
+
+    .pagination a:hover {
+      text-decoration: underline;
+    }
+
+    .pagination__status {
+      margin: 0;
+      font-weight: 600;
+    }
+
+    /* Keeps "Next" on the right when there is no "Previous" to balance it. */
+    .pagination__next {
+      margin-left: auto;
+    }
   `,
 })
 export class SearchPageComponent {
@@ -61,18 +113,41 @@ export class SearchPageComponent {
     transform: (value: string | undefined) => value ?? '',
   });
 
+  /**
+   * Query params always arrive as strings, and may be absent or nonsense
+   * (?page=abc, ?page=-3). Anything unusable falls back to page 1 rather
+   * than propagating NaN into a request.
+   */
+  readonly page = input(1, {
+    transform: (value: string | number | undefined): number => {
+      const parsed = typeof value === 'number' ? value : Number.parseInt(value ?? '', 10);
+      return Number.isFinite(parsed) && parsed >= 1 ? Math.trunc(parsed) : 1;
+    },
+  });
+
   private readonly query = computed(() => this.q().trim());
 
+  /** One signal for the whole request, so either param triggers a refetch. */
+  private readonly request = computed(() => ({
+    query: this.query(),
+    page: this.page(),
+  }));
+
   readonly state = toSignal(
-    toObservable(this.query).pipe(
+    toObservable(this.request).pipe(
+      // The computed above builds a fresh object on every recompute, and
+      // signals compare by reference — so the router setting `q` and `page`
+      // in separate passes emits twice with identical values and fires two
+      // identical requests. Compare by value instead.
+      distinctUntilChanged((a, b) => a.query === b.query && a.page === b.page),
       // switchMap cancels the in-flight request when the query changes, so a
       // slow earlier response can never overwrite a newer one.
-      switchMap((query) => {
+      switchMap(({ query, page }) => {
         if (!query) {
           return of<SearchState>({ status: 'idle' });
         }
 
-        return this.api.search(query).pipe(
+        return this.api.search(query, page).pipe(
           switchMap((results) => of<SearchState>({ status: 'success', results })),
           startWith<SearchState>({ status: 'loading' }),
           catchError((error: LocApiError) =>
@@ -107,13 +182,23 @@ export class SearchPageComponent {
         return 'Searching…';
       case 'error':
         return state.message;
-      case 'success':
-        return state.results.total === 0
-          ? `No results found for ${this.query()}.`
-          : `${state.results.total.toLocaleString()} results found for ${this.query()}.`;
+      case 'success': {
+        // Emptiness is decided by what actually rendered, not by `total`:
+        // LoC returns total: 1 alongside an empty results array for a query
+        // that matched nothing, so the two would otherwise contradict.
+        if (state.results.items.length === 0) {
+          return `No results found for ${this.query()}.`;
+        }
+        const count = `${state.results.total.toLocaleString()} results found for ${this.query()}.`;
+        return this.page() > 1 ? `${count} Page ${this.page()}.` : count;
+      }
     }
   });
 
+  /**
+   * Navigating without a `page` param resets to page 1, which is what a new
+   * search should do — landing on page 7 of a different query would be wrong.
+   */
   onSearch(query: string): void {
     this.router.navigate(['/search'], { queryParams: { q: query } });
   }

@@ -102,7 +102,25 @@ describe('SearchPageComponent', () => {
     respondWith({ results: [], pagination: { current: 1, perpage: 25, total: 0 } });
 
     expect(text()).toContain('No results found');
+    expect(text()).toContain('Check the spelling');
     expect(liveRegion().textContent).toContain('No results found for zzzzzzz');
+  });
+
+  it('treats an empty result list as empty even when the API reports a total', () => {
+    // LoC really does answer a no-match query with results: [] and total: 1.
+    setQuery('qwzkxjvlmnptrbdf');
+    respondWith({ results: [], pagination: { current: 1, perpage: 25, total: 1, of: 0 } });
+
+    expect(text()).toContain('No results found');
+    expect(text()).not.toContain('1 results found');
+    expect(liveRegion().textContent).toContain('No results found for qwzkxjvlmnptrbdf');
+  });
+
+  it('keeps the empty-state suggestions readable by assistive tech', () => {
+    setQuery('zzzzzzz');
+    respondWith({ results: [], pagination: { current: 1, perpage: 25, total: 0 } });
+
+    expect(fixture.nativeElement.querySelector('.empty').getAttribute('aria-hidden')).toBeNull();
   });
 
   it('shows a user-safe message when the request fails', () => {
@@ -131,6 +149,86 @@ describe('SearchPageComponent', () => {
     expect(input.value).toBe('lighthouse');
 
     respondWith(oneResult);
+  });
+
+  describe('pagination', () => {
+    const paged = (next: string | null, previous: string | null) => ({
+      results: oneResult.results,
+      pagination: { current: 2, perpage: 25, total: 500, next, previous },
+    });
+
+    function pageLinks(): string[] {
+      return [...fixture.nativeElement.querySelectorAll('.pagination a')].map(
+        (a) => (a as HTMLAnchorElement).textContent?.trim() ?? '',
+      );
+    }
+
+    it('requests the page named in the URL', () => {
+      fixture.componentRef.setInput('q', 'lighthouse');
+      fixture.componentRef.setInput('page', '3');
+      fixture.detectChanges();
+
+      const req = httpMock.expectOne((r) => r.url === 'https://www.loc.gov/search/');
+      expect(req.request.params.get('sp')).toBe('3');
+      req.flush(oneResult);
+    });
+
+    it('falls back to page 1 for a nonsense page parameter', () => {
+      fixture.componentRef.setInput('q', 'lighthouse');
+      fixture.componentRef.setInput('page', 'abc');
+      fixture.detectChanges();
+
+      const req = httpMock.expectOne((r) => r.url === 'https://www.loc.gov/search/');
+      expect(req.request.params.get('sp')).toBe('1');
+      req.flush(oneResult);
+    });
+
+    it('shows both links in the middle of the results', () => {
+      fixture.componentRef.setInput('q', 'lighthouse');
+      fixture.componentRef.setInput('page', '2');
+      fixture.detectChanges();
+      respondWith(paged('https://www.loc.gov/search/?sp=3', 'https://www.loc.gov/search/?sp=1'));
+
+      expect(pageLinks()).toEqual(['Previous page', 'Next page']);
+      expect(text()).toContain('Page 2');
+    });
+
+    it('omits Next when the API reports no further pages', () => {
+      fixture.componentRef.setInput('q', 'lighthouse');
+      fixture.componentRef.setInput('page', '2');
+      fixture.detectChanges();
+      respondWith(paged(null, 'https://www.loc.gov/search/?sp=1'));
+
+      expect(pageLinks()).toEqual(['Previous page']);
+    });
+
+    it('hides the pagination nav entirely on a single page of results', () => {
+      setQuery('lighthouse');
+      respondWith(oneResult);
+
+      expect(fixture.nativeElement.querySelector('.pagination')).toBeNull();
+    });
+
+    it('announces the page number beyond the first', () => {
+      fixture.componentRef.setInput('q', 'lighthouse');
+      fixture.componentRef.setInput('page', '2');
+      fixture.detectChanges();
+      respondWith(paged(null, 'https://www.loc.gov/search/?sp=1'));
+
+      expect(liveRegion().textContent).toContain('Page 2');
+    });
+  });
+
+  it('does not refetch when the inputs are set again with the same values', () => {
+    setQuery('lighthouse');
+    respondWith(oneResult);
+
+    // Mimics the router applying q and page in separate passes.
+    fixture.componentRef.setInput('q', 'lighthouse');
+    fixture.componentRef.setInput('page', 1);
+    fixture.detectChanges();
+
+    httpMock.expectNone(() => true);
   });
 
   it('issues a new request when the query parameter changes', () => {

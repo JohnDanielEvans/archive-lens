@@ -125,6 +125,10 @@ export function toSearchResults(
     total: dto.pagination?.total ?? items.length,
     page: dto.pagination?.current ?? requestedPage,
     pageSize: dto.pagination?.perpage ?? items.length,
+    // The API's own links, rather than a page count derived from `total`:
+    // `total` under-reports, and `last` disagrees with both.
+    hasNext: Boolean(dto.pagination?.next),
+    hasPrevious: Boolean(dto.pagination?.previous),
   };
 }
 

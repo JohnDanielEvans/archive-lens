@@ -83,13 +83,20 @@ export class LocApiService {
     }
 
     if (error instanceof HttpErrorResponse) {
-      // status 0 means the request never completed: offline, DNS, or CORS.
+      // Status 0 means the browser blocked the response before we saw it.
+      // In practice the usual cause is LoC's rate limiter: its Cloudflare
+      // challenge page carries no CORS headers, so a 429 reaches us as an
+      // opaque network failure rather than as a status code.
       const message =
         error.status === 0
-          ? 'Could not reach the Library of Congress. Check your connection and try again.'
+          ? 'Could not reach the Library of Congress. This is usually caused by too many requests in a short time — wait a minute and try again.'
           : error.status === 404
             ? 'That item could not be found.'
-            : 'The Library of Congress is not responding right now. Please try again shortly.';
+            : // LoC rate-limits behind Cloudflare and answers with an HTML
+              // challenge page, so this is hit in normal use, not just abuse.
+              error.status === 429
+              ? 'Too many requests to the Library of Congress. Wait a few seconds and try again.'
+              : 'The Library of Congress is not responding right now. Please try again shortly.';
 
       return throwError(() => new LocApiError(message, error.status));
     }
