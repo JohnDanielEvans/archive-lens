@@ -10,71 +10,96 @@
   min-height: 100vh;
 }
 
-// Hiding is handled by the global .visually-hidden class in the template.
-// This block only has to undo it on focus — and it must undo every property,
-// since missing one (usually clip-path) leaves the link "visible" but
-// clipped to nothing. The :focus selector outranks .visually-hidden on
-// specificity, so source order doesn't matter.
+// Hidden until a keyboard user tabs to it, then revealed over the header.
+// Hiding is handled by the global .visually-hidden class in the template, so
+// this block only has to undo it on focus — and it must undo every property,
+// since missing one (usually clip-path) leaves the link "visible" but clipped
+// to nothing. The :focus selector outranks .visually-hidden on specificity,
+// so source order doesn't matter.
 .skip-link {
   &:focus {
     position: fixed;
     top: 1rem;
     left: 1rem;
+    z-index: 1000; // stay above any future sticky/overlaying header
     width: auto;
     height: auto;
-    padding: 0.5rem 1rem;
+    padding: 0.625rem 1.25rem;
     margin: 0;
     overflow: visible;
+    font-weight: 600;
+    color: #fff;
+    white-space: normal;
     clip: auto;
     clip-path: none;
-    white-space: normal;
+    background-color: var(--accent);
     border: none;
-    background-color: #0b5fff;
-    color: #fff;
-    z-index: 1000; // stay above any future sticky/overlaying header
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
   }
 }
 
 .site-header {
   display: flex;
   flex-wrap: wrap;
+  gap: 0.25rem 2rem;
   align-items: baseline;
-  gap: 0.5rem 1.5rem;
-  padding: 1rem;
-  border-bottom: 1px solid #ddd;
+  padding: 1.25rem clamp(1rem, 4vw, 2.5rem);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
 
   h1 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.375rem;
+    letter-spacing: -0.02em;
   }
 
   nav ul {
     display: flex;
-    gap: 1rem;
-    margin: 0;
+    gap: 1.25rem;
     padding: 0;
+    margin: 0;
     list-style: none;
   }
 
   nav a {
-    color: #0b5fff;
+    position: relative;
+    padding-bottom: 2px;
+    font-size: 0.9375rem;
+    color: var(--ink-muted);
     text-decoration: none;
+    transition: color 0.15s ease;
 
     &:hover {
-      text-decoration: underline;
+      color: var(--accent);
     }
 
     // routerLinkActive adds this class on the matching route. The visual
     // change is backed by aria-current="page" for non-sighted users.
     &.is-active {
       font-weight: 600;
-      text-decoration: underline;
+      color: var(--ink);
+
+      &::after {
+        position: absolute;
+        right: 0;
+        bottom: -1px;
+        left: 0;
+        height: 2px;
+        content: '';
+        background: var(--accent);
+        border-radius: 2px;
+      }
     }
   }
 }
 
 main {
   flex: 1; // fill the space between header and footer
+  width: 100%;
+  max-width: 76rem;
+  padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1rem, 4vw, 2.5rem) 4rem;
+  margin-inline: auto;
 
   // Focus lands here when the skip link is used. We want the focus *move*
   // without drawing a ring around the entire page region.
@@ -84,11 +109,17 @@ main {
 }
 
 .site-footer {
-  padding: 1rem;
-  border-top: 1px solid #ddd;
+  padding: 1.25rem clamp(1rem, 4vw, 2.5rem);
   font-size: 0.875rem;
+  color: var(--ink-muted);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
 
   p {
     margin: 0;
+  }
+
+  a {
+    color: var(--accent);
   }
 }

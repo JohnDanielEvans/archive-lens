@@ -3,26 +3,49 @@
   gap: 1rem;
   height: 100%;
   padding: 1rem;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  transition:
+    box-shadow 0.18s ease,
+    transform 0.18s ease,
+    border-color 0.18s ease;
+}
+
+// Hover feedback lives on the card, but the link is still the only thing
+// that's focusable — :focus-within keeps the two in step for keyboard users.
+.card:hover,
+.card:focus-within {
+  border-color: #d3cdc2;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .card__thumb {
-  flex: 0 0 6rem;
-  width: 6rem;
-  height: 6rem;
+  flex: 0 0 5.5rem;
+  width: 5.5rem;
+  height: 5.5rem;
   object-fit: cover;
-  background: #f2f2f2;
-  border-radius: 4px;
+  background: var(--accent-wash);
+  border-radius: var(--radius-sm);
 }
 
 .card__thumb--empty {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
-  color: #767676;
+  font-size: 0.6875rem;
+  color: var(--ink-muted);
+  text-align: center;
+  letter-spacing: 0.02em;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--accent-wash),
+    var(--accent-wash) 6px,
+    #f7fafa 6px,
+    #f7fafa 12px
+  );
 }
 
 .card__body {
@@ -35,49 +58,52 @@
 
 .card__title {
   margin: 0 0 0.25rem;
-  font-size: 1rem;
+  font-size: 1.0625rem;
   line-height: 1.3;
 }
 
 .card__title a {
-  color: #0b5fff;
+  color: var(--ink);
   text-decoration: none;
-}
 
-.card__title a:hover {
-  text-decoration: underline;
+  &:hover {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
 }
 
 .card__meta {
   margin: 0;
-  font-size: 0.875rem;
-  color: #555;
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
 }
 
 .card__description {
+  display: -webkit-box;
   margin: 0.5rem 0 0;
+  overflow: hidden;
   font-size: 0.875rem;
+  color: var(--ink-muted);
 
   // Cap the preview at three lines so cards in a row stay a similar height.
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
-  overflow: hidden;
+  -webkit-box-orient: vertical;
 }
 
 .card__subjects {
   display: flex;
   flex-wrap: wrap;
   gap: 0.375rem;
-  margin: 0.625rem 0 0;
   padding: 0;
+  margin: 0.75rem 0 0;
   list-style: none;
 }
 
 .card__subjects li {
-  padding: 0.125rem 0.5rem;
+  padding: 0.1875rem 0.5rem;
   font-size: 0.75rem;
-  color: #333;
-  background: #eef2ff;
+  color: var(--accent);
+  background: var(--accent-wash);
   border-radius: 999px;
 }

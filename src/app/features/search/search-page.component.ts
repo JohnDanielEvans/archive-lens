@@ -24,6 +24,26 @@ type SearchState =
   imports: [SearchFormComponent, ItemCardComponent, RouterLink],
   templateUrl: './search-page.component.html',
   styles: `
+    h2 {
+      margin: 0 0 1.5rem;
+      font-size: clamp(1.75rem, 4vw, 2.25rem);
+    }
+
+    .prompt,
+    .loading {
+      margin: 2rem 0;
+      font-size: 1.0625rem;
+      color: var(--ink-muted);
+    }
+
+    .count {
+      margin: 2rem 0 0;
+      font-size: 0.875rem;
+      color: var(--ink-muted);
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
     .results {
       display: grid;
       /* min() is load-bearing: a bare minmax(20rem, 1fr) forces a 320px
@@ -31,16 +51,19 @@ type SearchState =
          sideways. */
       grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
       gap: 1rem;
-      margin: 1rem 0 0;
       padding: 0;
+      margin: 0.75rem 0 0;
       list-style: none;
     }
 
     .error {
-      padding: 0.75rem;
-      color: #b3261e;
-      border: 2px solid #b3261e;
-      border-radius: 4px;
+      max-width: 40rem;
+      padding: 1rem 1.25rem;
+      margin-top: 2rem;
+      color: var(--error);
+      background: var(--error-wash);
+      border: 1px solid currentcolor;
+      border-radius: var(--radius);
     }
 
     /* Not aria-hidden, unlike the other visible state text: the live region
@@ -48,9 +71,12 @@ type SearchState =
        suggestions are genuinely useful to read. */
     .empty {
       max-width: 40rem;
-      padding: 1rem 1.25rem;
-      background: #f7f7f7;
-      border-radius: 6px;
+      padding: 1.25rem 1.5rem;
+      margin-top: 2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
     }
 
     .empty p {
@@ -58,8 +84,9 @@ type SearchState =
     }
 
     .empty ul {
-      margin: 0;
       padding-left: 1.25rem;
+      margin: 0;
+      color: var(--ink-muted);
     }
 
     .empty li + li {
@@ -68,26 +95,37 @@ type SearchState =
 
     .pagination {
       display: flex;
-      align-items: center;
       gap: 1rem;
-      margin-top: 1.5rem;
+      align-items: center;
+      padding-top: 1.5rem;
+      margin-top: 2rem;
+      border-top: 1px solid var(--border);
     }
 
     .pagination a {
-      padding: 0.5rem 1rem;
-      color: #0b5fff;
+      padding: 0.5rem 1.125rem;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--accent);
       text-decoration: none;
-      border: 1px solid currentcolor;
-      border-radius: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-sm);
+      transition:
+        border-color 0.15s ease,
+        background-color 0.15s ease;
     }
 
     .pagination a:hover {
-      text-decoration: underline;
+      background: var(--accent-wash);
+      border-color: var(--accent);
     }
 
     .pagination__status {
       margin: 0;
-      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--ink-muted);
     }
 
     /* Keeps "Next" on the right when there is no "Previous" to balance it. */

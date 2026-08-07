@@ -32,57 +32,72 @@ function nonBlank(control: AbstractControl<string>): ValidationErrors | null {
     form {
       display: flex;
       flex-wrap: wrap;
-      align-items: flex-end;
       gap: 0.75rem;
+      align-items: flex-end;
+      max-width: 44rem;
     }
 
     .field {
       display: flex;
+      flex: 1 1 18rem;
       flex-direction: column;
-      flex: 1 1 20rem;
     }
 
     label {
+      font-size: 0.9375rem;
       font-weight: 600;
     }
 
     .hint {
-      margin: 0.125rem 0 0.375rem;
+      margin: 0.125rem 0 0.5rem;
       font-size: 0.875rem;
-      color: #555;
+      color: var(--ink-muted);
     }
 
     input {
-      padding: 0.5rem;
+      padding: 0.625rem 0.875rem;
       font: inherit;
-      border: 1px solid #767676;
-      border-radius: 4px;
+      color: var(--ink);
+      background: var(--surface);
+      border: 1px solid #b4afa6;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-sm);
+      transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+    }
+
+    input:hover {
+      border-color: var(--ink-muted);
     }
 
     input[aria-invalid='true'] {
-      border-color: #b3261e;
+      border-color: var(--error);
       border-width: 2px;
     }
 
     .error {
-      margin: 0.375rem 0 0;
+      margin: 0.5rem 0 0;
       font-size: 0.875rem;
       font-weight: 600;
-      color: #b3261e;
+      color: var(--error);
     }
 
     button {
-      padding: 0.5rem 1.25rem;
+      padding: 0.625rem 1.5rem;
       font: inherit;
+      font-weight: 600;
       color: #fff;
-      background: #0b5fff;
-      border: 1px solid transparent;
-      border-radius: 4px;
       cursor: pointer;
+      background: var(--accent);
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-sm);
+      transition: background-color 0.15s ease;
     }
 
     button:hover {
-      background: #0a4fd6;
+      background: var(--accent-strong);
     }
   `,
 })

@@ -1,6 +1,31 @@
 /* Global styles. Nothing here is scoped — these rules apply across every
-   component, which is exactly why shared utilities belong in this file
-   rather than in a component's own stylesheet. */
+   component, which is why shared tokens and utilities live in this file. */
+
+:root {
+  /* Colour. Every foreground/background pair below clears WCAG AA (4.5:1);
+     the darkest accent pairings clear AAA. */
+  --paper: #fbfaf8;
+  --surface: #ffffff;
+  --ink: #191c1f; /* 16.4:1 on paper */
+  --ink-muted: #5c6169; /* 5.98:1 on paper */
+  --accent: #0d5c63; /* 7.38:1 on paper, 7.7:1 white-on-accent */
+  --accent-strong: #0a474d;
+  --accent-wash: #eef4f4;
+  --border: #e5e1da;
+  --error: #a4231b; /* 7.1:1 on paper */
+  --error-wash: #fdf3f2;
+
+  --radius: 10px;
+  --radius-sm: 6px;
+
+  --shadow-sm: 0 1px 2px rgb(25 28 31 / 6%);
+  --shadow-md: 0 2px 4px rgb(25 28 31 / 6%), 0 8px 16px rgb(25 28 31 / 6%);
+
+  --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* A serif for headings gives the archive a printed, editorial feel without
+     the cost or layout shift of a downloaded webfont. */
+  --font-display: ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+}
 
 *,
 *::before,
@@ -10,23 +35,52 @@
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  line-height: 1.5;
-  color: #1a1a1a;
-  background: #fff;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* A visible focus indicator on every interactive element. :focus-visible
-   shows the ring for keyboard users but not on mouse click. Never remove
-   this without providing an equally visible replacement. */
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+/* balance evens out line lengths, which suits a short page heading. Applied
+   to card titles in a narrow column it produces ragged two-word lines. */
+h1,
+h2 {
+  text-wrap: balance;
+}
+
+/* A visible focus indicator on every interactive element. :focus-visible shows
+   the ring for keyboard users but not on mouse click. The offset puts the ring
+   on the page background, so it stays high-contrast even on accent-coloured
+   buttons. Never remove this without an equally visible replacement. */
 :focus-visible {
-  outline: 3px solid #0b5fff;
+  outline: 3px solid var(--accent);
   outline-offset: 2px;
+  border-radius: 2px;
 }
 
-/* Hides content visually while keeping it available to screen readers and
-   in the tab order. display:none and visibility:hidden would remove it from
-   the accessibility tree entirely, which is why neither is used here. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Hides content visually while keeping it available to screen readers and in
+   the tab order. display:none and visibility:hidden would remove it from the
+   accessibility tree entirely, which is why neither is used here. */
 .visually-hidden {
   position: absolute;
   width: 1px;

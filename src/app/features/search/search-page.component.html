@@ -13,11 +13,11 @@
 <p class="visually-hidden" role="status">{{ statusMessage() }}</p>
 
 @if (status() === 'idle') {
-  <p>Enter a search term above to explore the collection.</p>
+  <p class="prompt">Enter a search term above to explore the collection.</p>
 }
 
 @if (status() === 'loading') {
-  <p aria-hidden="true">Searching…</p>
+  <p class="loading" aria-hidden="true">Searching…</p>
 }
 
 @if (status() === 'error') {
@@ -35,7 +35,7 @@
       </ul>
     </div>
   } @else {
-    <p aria-hidden="true">{{ found.total.toLocaleString() }} results found.</p>
+    <p class="count" aria-hidden="true">{{ found.total.toLocaleString() }} results found</p>
 
     <!-- A list, so screen readers announce "list of N items" and support
          item-by-item navigation. -->
