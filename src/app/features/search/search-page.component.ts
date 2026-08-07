@@ -5,6 +5,7 @@ import { catchError, of, startWith, switchMap } from 'rxjs';
 
 import { SearchResults } from '../../core/models/collection-item.model';
 import { LocApiError, LocApiService } from '../../core/services/loc-api.service';
+import { ItemCardComponent } from '../../shared/item-card/item-card.component';
 import { SearchFormComponent } from './search-form.component';
 
 /**
@@ -20,18 +21,19 @@ type SearchState =
 
 @Component({
   selector: 'app-search-page',
-  imports: [SearchFormComponent],
+  imports: [SearchFormComponent, ItemCardComponent],
   templateUrl: './search-page.component.html',
   styles: `
     .results {
-      margin: 0;
+      display: grid;
+      /* min() is load-bearing: a bare minmax(20rem, 1fr) forces a 320px
+         column even on a narrower viewport, which scrolls the whole page
+         sideways. */
+      grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
+      gap: 1rem;
+      margin: 1rem 0 0;
       padding: 0;
       list-style: none;
-    }
-
-    .results li {
-      padding: 0.75rem 0;
-      border-bottom: 1px solid #eee;
     }
 
     .error {

@@ -30,15 +30,12 @@
   } @else {
     <p aria-hidden="true">{{ found.total.toLocaleString() }} results found.</p>
 
+    <!-- A list, so screen readers announce "list of N items" and support
+         item-by-item navigation. -->
     <ul class="results">
       @for (item of found.items; track item.id) {
         <li>
-          <a [href]="item.url" target="_blank" rel="noopener noreferrer">
-            {{ item.title }}
-          </a>
-          @if (item.date) {
-            <span> — {{ item.date }}</span>
-          }
+          <app-item-card [item]="item" />
         </li>
       }
     </ul>

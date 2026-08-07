@@ -1,0 +1,42 @@
+<article class="card">
+  @if (item().thumbnailUrl; as thumbnail) {
+    <!--
+      alt="" on purpose: the title next to it already names the item, so
+      describing the image would make screen readers announce it twice.
+      A genuinely decorative image is best left out of the accessibility tree.
+    -->
+    <img class="card__thumb" [src]="thumbnail" alt="" loading="lazy" decoding="async" />
+  } @else {
+    <div class="card__thumb card__thumb--empty" aria-hidden="true">No image</div>
+  }
+
+  <div class="card__body">
+    <!--
+      h3 sits under the page's h2. The link wraps only the title, so the
+      accessible name of the link is the item title rather than the whole card.
+    -->
+    <h3 class="card__title">
+      <a [routerLink]="['/item', item().id]">{{ item().title }}</a>
+    </h3>
+
+    @if (item().date) {
+      <p class="card__meta">{{ item().date }}</p>
+    }
+
+    @if (contributorSummary(); as contributors) {
+      <p class="card__meta">{{ contributors }}</p>
+    }
+
+    @if (item().description; as description) {
+      <p class="card__description">{{ description }}</p>
+    }
+
+    @if (topSubjects().length > 0) {
+      <ul class="card__subjects" aria-label="Subjects">
+        @for (subject of topSubjects(); track subject) {
+          <li>{{ subject }}</li>
+        }
+      </ul>
+    }
+  </div>
+</article>
