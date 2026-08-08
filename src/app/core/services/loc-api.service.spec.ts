@@ -90,6 +90,24 @@ describe('LocApiService', () => {
         .error(new ProgressEvent('network error'));
     });
 
+    it('reports a plain message when the response cannot be processed at all', (done) => {
+      // A 200 whose body is the wrong shape entirely: mapping throws a
+      // TypeError rather than an HttpErrorResponse. This is the branch that
+      // fired when `summary` turned out to be an array, so it needs to stay
+      // safe rather than leaking a stack trace to the user.
+      service.search('lighthouse').subscribe({
+        error: (error: LocApiError) => {
+          expect(error).toBeInstanceOf(LocApiError);
+          expect(error.message).toBe('Something went wrong. Please try again.');
+          done();
+        },
+      });
+
+      httpMock
+        .expectOne((r) => r.url === 'https://www.loc.gov/search/')
+        .flush({ results: 'not an array' });
+    });
+
     it('explains a rate-limit response', (done) => {
       service.search('lighthouse').subscribe({
         error: (error: LocApiError) => {

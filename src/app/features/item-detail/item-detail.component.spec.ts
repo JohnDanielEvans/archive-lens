@@ -86,6 +86,21 @@ describe('ItemDetailComponent', () => {
     expect(text()).toContain('Wittemann Collection.');
   });
 
+  it('falls back to the description when there is no summary', () => {
+    load();
+    respondWith({
+      item: {
+        ...itemResponse.item,
+        summary: undefined,
+        description: ['1 photographic print. | Shows the pier at dusk.'],
+      },
+    });
+
+    expect(fixture.nativeElement.querySelector('.summary').textContent).toContain(
+      'Shows the pier at dusk',
+    );
+  });
+
   it('gives the image an empty alt, since the API supplies no description', () => {
     load();
     respondWith(itemResponse);

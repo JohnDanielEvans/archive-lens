@@ -125,6 +125,23 @@ describe('SearchFormComponent', () => {
     expect(fixture.nativeElement.querySelector('#search-query-error')).not.toBeNull();
   });
 
+  it('reports no error message while the form is untouched', () => {
+    expect(component.showError).toBeFalse();
+    expect(component.errorMessage).toBeNull();
+  });
+
+  it('falls back to a generic message for an unrecognised validation error', () => {
+    // Guards the default branch of errorMessage: if a validator is added later
+    // without a matching message, the user still sees something sensible
+    // rather than a blank error region.
+    component.queryControl.setErrors({ pattern: true });
+    submit();
+
+    expect(fixture.nativeElement.querySelector('.error').textContent).toContain(
+      'Enter a valid search term',
+    );
+  });
+
   it('moves focus to the field when submission fails', () => {
     submit();
     expect(document.activeElement).toBe(input());

@@ -36,7 +36,8 @@
       }
 
       <div class="details">
-        @if (summary(); as summaryText) {
+        <!-- Prefer the curated summary, fall back to the raw description. -->
+        @if (detail.summary ?? detail.description; as summaryText) {
           <p class="summary">{{ summaryText }}</p>
         }
 

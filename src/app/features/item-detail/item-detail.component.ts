@@ -195,12 +195,6 @@ export class ItemDetailComponent {
     return state.status === 'success' ? state.item : null;
   });
 
-  /** Prefer the curated summary, fall back to the raw description. */
-  readonly summary = computed(() => {
-    const item = this.item();
-    return item ? (item.summary ?? item.description) : null;
-  });
-
   readonly statusMessage = computed(() => {
     const state = this.state();
     switch (state.status) {

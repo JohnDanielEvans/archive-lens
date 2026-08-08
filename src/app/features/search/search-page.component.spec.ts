@@ -4,7 +4,7 @@ import {
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 
 import { SearchPageComponent } from './search-page.component';
 
@@ -223,6 +223,19 @@ describe('SearchPageComponent', () => {
       expect(pageLinks()).toEqual(['Previous page']);
     });
 
+    it('refetches when only the page changes', () => {
+      setQuery('lighthouse');
+      respondWith(oneResult);
+
+      fixture.componentRef.setInput('page', 2);
+      fixture.detectChanges();
+
+      const req = httpMock.expectOne((r) => r.url === 'https://www.loc.gov/search/');
+      expect(req.request.params.get('q')).toBe('lighthouse');
+      expect(req.request.params.get('sp')).toBe('2');
+      req.flush(oneResult);
+    });
+
     it('hides the pagination nav entirely on a single page of results', () => {
       setQuery('lighthouse');
       respondWith(oneResult);
@@ -238,6 +251,26 @@ describe('SearchPageComponent', () => {
 
       expect(liveRegion().textContent).toContain('Page 2');
     });
+  });
+
+  it('navigates rather than fetching when the form is submitted', () => {
+    // The URL is the source of truth: submitting must change the address, and
+    // the resulting ?q= is what triggers the request. Submitting page 1 also
+    // drops any existing page param, so a new search starts from the top.
+    setQuery('');
+    const router = TestBed.inject(Router);
+    const navigate = spyOn(router, 'navigate').and.resolveTo(true);
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('#search-query');
+    input.value = 'lighthouse';
+    input.dispatchEvent(new Event('input'));
+    fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit'));
+    fixture.detectChanges();
+
+    expect(navigate).toHaveBeenCalledWith(['/search'], {
+      queryParams: { q: 'lighthouse' },
+    });
+    httpMock.expectNone(() => true);
   });
 
   it('does not refetch when the inputs are set again with the same values', () => {
