@@ -1,0 +1,11 @@
+{
+  "results": [],
+  "pagination": {
+    "current": 1,
+    "perpage": 25,
+    "of": 0,
+    "total": 1,
+    "next": null,
+    "previous": null
+  }
+}

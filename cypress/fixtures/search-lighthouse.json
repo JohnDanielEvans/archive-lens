@@ -1,0 +1,52 @@
+{
+  "results": [
+    {
+      "id": "http://lccn.loc.gov/2003557451",
+      "aka": [
+        "http://www.loc.gov/item/2003557451/",
+        "http://lccn.loc.gov/2003557451"
+      ],
+      "title": "Legendary lighthouses",
+      "url": "//lccn.loc.gov/2003557451",
+      "date": "1999",
+      "image_url": [],
+      "description": [
+        "Companion to the PBS series exploring the history and lore of lighthouses."
+      ],
+      "contributor": ["wpsx-tv (television station : university park, pa.)"],
+      "subject": ["lighthouse keepers", "united states", "lighthouses"],
+      "original_format": ["book"],
+      "type": "text"
+    },
+    {
+      "id": "http://www.loc.gov/item/2005691065/",
+      "title": "Lighthouse, Biloxi, Mississippi",
+      "url": "https://www.loc.gov/item/2005691065/",
+      "date": "1920-01-01",
+      "image_url": [
+        "https://tile.loc.gov/storage-services/service/pnp/ppmsca/09000/09074_150px.jpg"
+      ],
+      "description": [
+        "1 photographic print. | Photograph showing lighthouse and pier."
+      ],
+      "contributor": null,
+      "subject": ["mississippi", "biloxi", "lighthouses"],
+      "original_format": ["photo, print, drawing"],
+      "type": null
+    },
+    {
+      "id": "http://www.loc.gov/research-centers/geography-and-map/",
+      "title": "Geography and Map Reading Room",
+      "url": "https://www.loc.gov/research-centers/geography-and-map/",
+      "image_url": []
+    }
+  ],
+  "pagination": {
+    "current": 1,
+    "perpage": 25,
+    "total": 9110,
+    "of": 227735,
+    "next": "https://www.loc.gov/search/?q=lighthouse&sp=2",
+    "previous": null
+  }
+}

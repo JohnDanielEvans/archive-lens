@@ -1,0 +1,23 @@
+{
+  "item": {
+    "id": "http://www.loc.gov/item/2005691065/",
+    "title": "Lighthouse, Biloxi, Mississippi",
+    "date": "1920-01-01",
+    "summary": "Photograph showing lighthouse and pier.",
+    "link": "https://www.loc.gov/pictures/item/2005691065/",
+    "image_url": [
+      "https://tile.loc.gov/storage-services/service/pnp/ppmsca/09000/09074_150px.jpg"
+    ],
+    "medium": ["1 photographic print."],
+    "notes": ["Wittemann Collection.", "Title from item."],
+    "subjects": [
+      { "biloxi": "https://www.loc.gov/search/?fa=subject:biloxi&fo=json" },
+      { "lighthouses": "https://www.loc.gov/search/?fa=subject:lighthouses&fo=json" }
+    ],
+    "format": [
+      {
+        "photo, print, drawing": "https://www.loc.gov/search/?fa=original_format:photo&fo=json"
+      }
+    ]
+  }
+}

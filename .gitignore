@@ -44,3 +44,7 @@ Thumbs.db
 # Claude Code
 .claude/
 CLAUDE.md
+# Cypress
+/cypress/screenshots
+/cypress/videos
+/cypress/downloads
