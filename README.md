@@ -3,6 +3,8 @@
 An accessible Angular app for searching the [Library of Congress](https://www.loc.gov/apis/)
 public collections.
 
+**Live: [archive-lens.pages.dev](https://archive-lens.pages.dev)**
+
 Built as a learning project, with an emphasis on accessibility as a design
 constraint rather than a cleanup pass, and on handling a real third-party API
 that does not behave the way its documentation implies.
@@ -125,9 +127,14 @@ Not a checklist applied at the end — several decisions here shaped the code:
 
 ## Deployment
 
-Pushes to `main` run the full suite and then deploy to Cloudflare Pages. Pull
-requests are verified but not deployed. The deploy uploads the exact artifact
-that passed, rather than rebuilding.
+Deployed to Cloudflare Pages at
+[archive-lens.pages.dev](https://archive-lens.pages.dev). Pushes to `main` run
+the full suite and then deploy; pull requests are verified but not deployed. The
+deploy uploads the exact artifact that passed, rather than rebuilding.
+
+Every deployment also gets an immutable `<hash>.archive-lens.pages.dev` URL, so
+a specific build can be linked to or compared against another. The bare
+`archive-lens.pages.dev` alias always points at the latest production deploy.
 
 `public/_redirects` sends every unmatched path to `index.html` with a 200.
 Without it, only `/` exists as a real file and any deep link or refresh on
@@ -142,8 +149,3 @@ exists:
    a Git connection — the workflow does the uploading).
 2. Create an API token with the **Cloudflare Pages: Edit** permission.
 3. Add repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
-
-## Notes
-
-`LEARNING_NOTES.md` records the Angular concepts, the architectural decisions
-and the mistakes corrected along the way.
