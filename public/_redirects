@@ -1,0 +1,9 @@
+# Cloudflare Pages: hand every unmatched path to the Angular router.
+#
+# Without this, only "/" exists as a real file. Loading /search?q=lighthouse
+# directly, refreshing on /item/123, or following a shared link would all 404,
+# because Pages looks for a file at that path and there isn't one.
+#
+# The 200 (rather than a 301/302) matters: the URL stays as the user typed it,
+# so the router still sees /item/123 and renders the right page.
+/*    /index.html   200
