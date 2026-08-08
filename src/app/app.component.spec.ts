@@ -25,6 +25,15 @@ describe('AppComponent', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
+  it('links the site name back to the home page', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const wordmark: HTMLAnchorElement = fixture.nativeElement.querySelector('h1 a');
+
+    expect(wordmark).withContext('the h1 should contain a link').toBeTruthy();
+    expect(wordmark.getAttribute('href')).toBe('/');
+  });
+
   it('should render exactly one h1 naming the application', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();

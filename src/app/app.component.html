@@ -8,7 +8,12 @@
 <a href="#main-content" class="skip-link visually-hidden">Skip to main content</a>
 
 <header class="site-header">
-  <h1>Archive Lens</h1>
+  <!--
+    The site name links home, as people expect from a wordmark. No
+    routerLinkActive here: "/" is a prefix of every route, so it would render
+    as permanently active.
+  -->
+  <h1><a routerLink="/">Archive Lens</a></h1>
 
   <nav aria-label="Primary">
     <ul>
