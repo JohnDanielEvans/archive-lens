@@ -25,14 +25,14 @@ export type LocFacetDto = Readonly<Record<string, string>>;
 
 /** One entry in the `results` array of a search response. */
 export interface LocSearchResultDto {
-  readonly id?: string;
-  readonly title?: string;
-  readonly url?: string;
+  readonly id?: LocMaybeList<string>;
+  readonly title?: LocMaybeList<string>;
+  readonly url?: LocMaybeList<string>;
   /** Alternate URLs for the same record. Often the only place the canonical
    *  /item/ URL appears when `id` is an lccn.loc.gov catalogue URL. */
   readonly aka?: readonly string[] | null;
-  readonly date?: string;
-  readonly image_url?: readonly string[] | null;
+  readonly date?: LocMaybeList<string>;
+  readonly image_url?: LocMaybeList<string>;
   readonly description?: LocMaybeList<string>;
   readonly contributor?: LocMaybeList<string>;
   readonly subject?: LocMaybeList<string>;
@@ -60,17 +60,18 @@ export interface LocSearchResponseDto {
 /** The `item` object from `/item/{id}/?fo=json`. Richer, and differently
  *  shaped from a search result — subjects/format arrive as facet objects. */
 export interface LocItemDto {
-  readonly id?: string;
+  readonly id?: LocMaybeList<string>;
   readonly aka?: readonly string[] | null;
-  readonly title?: string;
-  readonly date?: string;
-  readonly summary?: string;
-  readonly link?: string;
-  readonly image_url?: readonly string[] | null;
-  readonly created_published?: readonly string[] | null;
-  readonly description?: readonly string[] | null;
-  readonly medium?: readonly string[] | null;
-  readonly notes?: readonly string[] | null;
+  readonly title?: LocMaybeList<string>;
+  readonly date?: LocMaybeList<string>;
+  /** String on photo records, array on catalogue records. Verified, not guessed. */
+  readonly summary?: LocMaybeList<string>;
+  readonly link?: LocMaybeList<string>;
+  readonly image_url?: LocMaybeList<string>;
+  readonly created_published?: LocMaybeList<string>;
+  readonly description?: LocMaybeList<string>;
+  readonly medium?: LocMaybeList<string>;
+  readonly notes?: LocMaybeList<string>;
   readonly subjects?: readonly LocFacetDto[] | null;
   readonly format?: readonly LocFacetDto[] | null;
   readonly contributors?: readonly LocFacetDto[] | null;

@@ -17,7 +17,28 @@
 }
 
 @if (status() === 'loading') {
-  <p class="loading" aria-hidden="true">Searching…</p>
+  <p class="loading" aria-hidden="true"><span class="spinner"></span>Searching…</p>
+
+  <!--
+    Placeholder cards, not a bare spinner: they show the shape of what's
+    coming and stop the layout jumping when results land. Entirely decorative,
+    so aria-hidden — the live region above already announces "Searching…".
+  -->
+  <ul class="results skeletons" aria-hidden="true">
+    @for (placeholder of skeletons; track $index) {
+      <li>
+        <div class="skeleton-card">
+          <div class="skeleton skeleton--thumb"></div>
+          <div class="skeleton-card__body">
+            <div class="skeleton skeleton--title"></div>
+            <div class="skeleton skeleton--line"></div>
+            <div class="skeleton skeleton--line skeleton--short"></div>
+            <div class="skeleton skeleton--chips"></div>
+          </div>
+        </div>
+      </li>
+    }
+  </ul>
 }
 
 @if (status() === 'error') {

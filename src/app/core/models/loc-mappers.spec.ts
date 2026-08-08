@@ -216,4 +216,42 @@ describe('toCollectionItemDetail', () => {
   it('returns null when the item has no id', () => {
     expect(toCollectionItemDetail({ ...itemDto, id: undefined })).toBeNull();
   });
+
+  it('accepts a summary that arrives as an array', () => {
+    // Real shape from /item/2003557451/: photo records send summary as a
+    // string, catalogue records send an array. Calling .trim() on the array
+    // threw a TypeError that surfaced as a generic "something went wrong".
+    const detail = toCollectionItemDetail({
+      ...itemDto,
+      summary: ['Companion to the PBS series about lighthouses.'],
+    });
+
+    expect(detail!.summary).toBe('Companion to the PBS series about lighthouses.');
+  });
+
+  it('maps a catalogue record whose id is only in aka', () => {
+    const detail = toCollectionItemDetail({
+      id: 'http://lccn.loc.gov/2003557451',
+      aka: ['http://www.loc.gov/item/2003557451/', 'http://lccn.loc.gov/2003557451'],
+      title: 'Legendary lighthouses',
+      date: '1999',
+      summary: ['Companion to the PBS series.'],
+      notes: ['Began in 1999?', 'Mode of access: World Wide Web.'],
+      format: [{ book: 'https://www.loc.gov/search/' }],
+    });
+
+    expect(detail).not.toBeNull();
+    expect(detail!.id).toBe('2003557451');
+    expect(detail!.summary).toBe('Companion to the PBS series.');
+    expect(detail!.formats).toEqual(['book']);
+  });
+
+  it('survives a non-string sneaking into a string field', () => {
+    const detail = toCollectionItemDetail({
+      ...itemDto,
+      notes: ['real note', 42, null] as unknown as readonly string[],
+    });
+
+    expect(detail!.notes).toEqual(['real note']);
+  });
 });

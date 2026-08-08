@@ -31,9 +31,114 @@ type SearchState =
 
     .prompt,
     .loading {
-      margin: 2rem 0;
+      margin: 2rem 0 0;
       font-size: 1.0625rem;
       color: var(--ink-muted);
+    }
+
+    .loading {
+      display: flex;
+      gap: 0.625rem;
+      align-items: center;
+    }
+
+    .spinner {
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(1turn);
+      }
+    }
+
+    /* A frozen ring reads as a rendering bug, so drop it entirely and let the
+       text and placeholders carry the message. */
+    @media (prefers-reduced-motion: reduce) {
+      .spinner {
+        display: none;
+      }
+    }
+
+    .skeletons {
+      /* Hold the skeletons back briefly. Most responses arrive fast enough
+         that showing them immediately is just a flicker. */
+      animation: fade-in 0.2s ease 0.15s both;
+    }
+
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .skeleton-card {
+      display: flex;
+      gap: 1rem;
+      height: 100%;
+      padding: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .skeleton-card__body {
+      flex: 1;
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, #ece9e3 25%, #f6f4f0 37%, #ece9e3 63%);
+      background-size: 400% 100%;
+      border-radius: 4px;
+      animation: shimmer 1.4s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      from {
+        background-position: 100% 50%;
+      }
+
+      to {
+        background-position: 0% 50%;
+      }
+    }
+
+    .skeleton--thumb {
+      flex: 0 0 5.5rem;
+      width: 5.5rem;
+      height: 5.5rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .skeleton--title {
+      width: 70%;
+      height: 1.0625rem;
+      margin-bottom: 0.625rem;
+    }
+
+    .skeleton--line {
+      height: 0.75rem;
+      margin-bottom: 0.4375rem;
+    }
+
+    .skeleton--short {
+      width: 55%;
+    }
+
+    .skeleton--chips {
+      width: 65%;
+      height: 1.125rem;
+      margin-top: 0.875rem;
+      border-radius: 999px;
     }
 
     .count {
@@ -204,6 +309,9 @@ export class SearchPageComponent {
   });
 
   readonly status = computed(() => this.state().status);
+
+  /** Placeholder cards shown while a search is in flight. */
+  readonly skeletons = Array.from({ length: 6 });
 
   /**
    * Text for the live region. It is a single always-rendered element whose

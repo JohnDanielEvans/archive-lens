@@ -1,0 +1,92 @@
+<!-- Always rendered so screen readers pick up text changes; see the search
+     page for why a conditionally-added live region often stays silent. -->
+<p class="visually-hidden" role="status">{{ statusMessage() }}</p>
+
+<a class="back" routerLink="/search">← Back to search</a>
+
+@if (status() === 'loading') {
+  <p class="loading" aria-hidden="true"><span class="spinner"></span>Loading item…</p>
+}
+
+@if (status() === 'error') {
+  <div class="error">
+    <p>{{ statusMessage() }}</p>
+    <p><a routerLink="/search">Return to search</a></p>
+  </div>
+}
+
+@if (item(); as detail) {
+  <article>
+    <h2>{{ detail.title }}</h2>
+
+    <div class="layout">
+      @if (detail.thumbnailUrl; as image) {
+        <figure>
+          <!--
+            alt="" is deliberate. The API supplies no alternative text, and
+            inventing a description of a photograph we cannot see would be
+            worse than none. The title, summary and medium below carry the
+            same information in text, so the image is presentational here.
+          -->
+          <img [src]="image" alt="" />
+          @if (detail.medium.length > 0) {
+            <figcaption>{{ detail.medium.join(' · ') }}</figcaption>
+          }
+        </figure>
+      }
+
+      <div class="details">
+        @if (summary(); as summaryText) {
+          <p class="summary">{{ summaryText }}</p>
+        }
+
+        <!-- A description list, so each label is programmatically tied to its
+             value rather than being a visual pairing only. -->
+        <dl>
+          @if (detail.date; as date) {
+            <dt>Date</dt>
+            <dd>{{ date }}</dd>
+          }
+
+          @if (detail.contributors.length > 0) {
+            <dt>Contributors</dt>
+            <dd>{{ detail.contributors.join(', ') }}</dd>
+          }
+
+          @if (detail.formats.length > 0) {
+            <dt>Format</dt>
+            <dd>{{ detail.formats.join(', ') }}</dd>
+          }
+        </dl>
+
+        @if (detail.subjects.length > 0) {
+          <h3 id="subjects-heading">Subjects</h3>
+          <ul class="subjects" aria-labelledby="subjects-heading">
+            @for (subject of detail.subjects; track subject) {
+              <li>{{ subject }}</li>
+            }
+          </ul>
+        }
+
+        @if (detail.notes.length > 0) {
+          <h3 id="notes-heading">Notes</h3>
+          <ul class="notes" aria-labelledby="notes-heading">
+            @for (note of detail.notes; track note) {
+              <li>{{ note }}</li>
+            }
+          </ul>
+        }
+
+        <a
+          class="source"
+          [href]="detail.onlineUrl ?? detail.url"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View this item on loc.gov
+          <span class="visually-hidden">(opens in a new tab)</span>
+        </a>
+      </div>
+    </div>
+  </article>
+}

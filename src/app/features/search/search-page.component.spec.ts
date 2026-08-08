@@ -82,6 +82,27 @@ describe('SearchPageComponent', () => {
     respondWith({ results: [], pagination: { total: 0 } });
   });
 
+  it('shows placeholder cards while loading, hidden from assistive tech', () => {
+    setQuery('lighthouse');
+
+    const skeletons = fixture.nativeElement.querySelector('.skeletons');
+    expect(skeletons).not.toBeNull();
+    // The live region already announces "Searching…"; the placeholders are
+    // purely visual and must not be read out as empty list items.
+    expect(skeletons.getAttribute('aria-hidden')).toBe('true');
+    expect(skeletons.querySelectorAll('.skeleton-card').length).toBe(6);
+
+    respondWith({ results: [], pagination: { total: 0 } });
+  });
+
+  it('removes the placeholders once results arrive', () => {
+    setQuery('lighthouse');
+    respondWith(oneResult);
+
+    expect(fixture.nativeElement.querySelector('.skeletons')).toBeNull();
+    expect(fixture.nativeElement.querySelectorAll('app-item-card').length).toBe(1);
+  });
+
   it('renders results once the request resolves', () => {
     setQuery('lighthouse');
     respondWith(oneResult);

@@ -18,15 +18,35 @@ import {
  * Everything it exports returns fully-populated domain objects.
  */
 
-/** Coerce "one value | many values | nothing" into a plain array. */
+/**
+ * Coerce "one value | many values | nothing" into a plain array of non-blank
+ * strings.
+ *
+ * The type guard is not paranoia: the API's own shape is unreliable enough
+ * that a non-string can appear in a field declared as strings, and an
+ * unguarded `.trim()` throws a TypeError that surfaces as a generic error.
+ */
 function toArray(value: LocMaybeList<string> | undefined): readonly string[] {
   if (value == null) return [];
-  if (Array.isArray(value)) return value.filter((v) => v.trim().length > 0);
-  return typeof value === 'string' && value.trim().length > 0 ? [value] : [];
+  const list = Array.isArray(value) ? value : [value];
+  return list
+    .filter((entry): entry is string => typeof entry === 'string')
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0);
 }
 
 function firstOrNull(values: readonly string[]): string | null {
   return values.length > 0 ? values[0] : null;
+}
+
+/**
+ * Read a field we want as a single string, whichever way it arrives.
+ *
+ * Confirmed cases: `summary` is a string on photo records and an array on
+ * catalogue records. Assuming a string there threw on every affected item.
+ */
+function firstString(value: LocMaybeList<string> | undefined): string | null {
+  return firstOrNull(toArray(value));
 }
 
 /** Facet objects are `{ label: searchUrl }`; we only want the labels. */
@@ -36,7 +56,7 @@ function facetLabels(facets: readonly LocFacetDto[] | null | undefined): readonl
 }
 
 /** The API mixes protocol-relative and absolute URLs. Normalise to https. */
-export function toAbsoluteUrl(url: string | undefined): string | null {
+export function toAbsoluteUrl(url: string | null | undefined): string | null {
   if (!url) return null;
   if (url.startsWith('//')) return `https:${url}`;
   return url;
@@ -50,7 +70,7 @@ const ITEM_URL_PATTERN = /\/item\/([^/?#]+)/;
  * "http://www.loc.gov/item/2005691065/" -> "2005691065"
  * "http://lccn.loc.gov/2003557451"      -> null (catalogue URL, not an item)
  */
-export function extractItemId(id: string | undefined): string | null {
+export function extractItemId(id: string | null | undefined): string | null {
   if (!id) return null;
   const match = ITEM_URL_PATTERN.exec(id);
   return match ? match[1] : null;
@@ -67,7 +87,7 @@ export function extractItemId(id: string | undefined): string | null {
  * null and are filtered out, since there is no detail page to link them to.
  */
 export function resolveItemId(
-  id: string | undefined,
+  id: string | null | undefined,
   aka: readonly string[] | null | undefined,
 ): string | null {
   const fromId = extractItemId(id);
@@ -90,8 +110,8 @@ function itemUrl(id: string): string {
  * missing item id or missing title — so callers can filter it out.
  */
 export function toCollectionItem(dto: LocSearchResultDto): CollectionItem | null {
-  const id = resolveItemId(dto.id, dto.aka);
-  const title = dto.title?.trim();
+  const id = resolveItemId(firstString(dto.id), dto.aka);
+  const title = firstString(dto.title);
 
   if (!id || !title) return null;
 
@@ -101,10 +121,10 @@ export function toCollectionItem(dto: LocSearchResultDto): CollectionItem | null
     // Derived from the resolved id rather than taken from `url`, which often
     // points at the lccn.loc.gov catalogue page even when an /item/ URL exists.
     url: itemUrl(id),
-    date: dto.date?.trim() || null,
-    // image_url is present but empty for ~60% of results, so [0] is often
-    // undefined; toAbsoluteUrl turns that into null.
-    thumbnailUrl: toAbsoluteUrl(dto.image_url?.[0]),
+    date: firstString(dto.date),
+    // image_url is present but empty for ~60% of results, so the first entry
+    // is often missing; toAbsoluteUrl turns that into null.
+    thumbnailUrl: toAbsoluteUrl(firstString(dto.image_url)),
     description: firstOrNull(toArray(dto.description)),
     contributors: toArray(dto.contributor),
     subjects: toArray(dto.subject),
@@ -133,8 +153,8 @@ export function toSearchResults(
 }
 
 export function toCollectionItemDetail(dto: LocItemDto): CollectionItemDetail | null {
-  const id = resolveItemId(dto.id, dto.aka);
-  const title = dto.title?.trim();
+  const id = resolveItemId(firstString(dto.id), dto.aka);
+  const title = firstString(dto.title);
 
   if (!id || !title) return null;
 
@@ -142,17 +162,15 @@ export function toCollectionItemDetail(dto: LocItemDto): CollectionItemDetail | 
     id,
     title,
     url: itemUrl(id),
-    date: dto.date?.trim() || firstOrNull(toArray(dto.created_published)),
-    // image_url is present but empty for ~60% of results, so [0] is often
-    // undefined; toAbsoluteUrl turns that into null.
-    thumbnailUrl: toAbsoluteUrl(dto.image_url?.[0]),
-    description: firstOrNull(toArray(dto.description)),
+    date: firstString(dto.date) ?? firstString(dto.created_published),
+    thumbnailUrl: toAbsoluteUrl(firstString(dto.image_url)),
+    description: firstString(dto.description),
     contributors: facetLabels(dto.contributors),
     subjects: facetLabels(dto.subjects),
     formats: facetLabels(dto.format),
-    summary: dto.summary?.trim() || null,
+    summary: firstString(dto.summary),
     medium: toArray(dto.medium),
     notes: toArray(dto.notes),
-    onlineUrl: toAbsoluteUrl(dto.link),
+    onlineUrl: toAbsoluteUrl(firstString(dto.link)),
   };
 }

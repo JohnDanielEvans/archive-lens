@@ -1,6 +1,10 @@
-import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Component } from '@angular/core';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { Router, provideRouter } from '@angular/router';
 import { AppComponent } from './app.component';
+
+@Component({ template: '<a href="#" id="a-link">a</a>' })
+class StubPageComponent {}
 
 /**
  * These specs assert the shell's landmark and skip-link structure, so that
@@ -61,4 +65,51 @@ describe('AppComponent', () => {
       .withContext('<router-outlet /> must be inside <main>, not a sibling')
       .toBeTruthy();
   });
+});
+
+/**
+ * A router swaps DOM without moving focus, so a keyboard user stays wherever
+ * they clicked — at the bottom of the previous page after "Next page", for
+ * instance. The shell restores the behaviour a multi-page site gets free.
+ */
+describe('AppComponent focus management', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [AppComponent],
+      providers: [
+        provideRouter([
+          { path: 'one', component: StubPageComponent },
+          { path: 'two', component: StubPageComponent },
+        ]),
+      ],
+    }).compileComponents();
+  });
+
+  it('does not steal focus on the first navigation', fakeAsync(() => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+
+    TestBed.inject(Router).navigate(['/one']);
+    tick();
+    fixture.detectChanges();
+
+    const main = fixture.nativeElement.querySelector('main');
+    expect(document.activeElement).not.toBe(main);
+  }));
+
+  it('moves focus to main on subsequent navigations', fakeAsync(() => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const router = TestBed.inject(Router);
+
+    router.navigate(['/one']);
+    tick();
+    fixture.detectChanges();
+
+    router.navigate(['/two']);
+    tick();
+    fixture.detectChanges();
+
+    expect(document.activeElement).toBe(fixture.nativeElement.querySelector('main'));
+  }));
 });
