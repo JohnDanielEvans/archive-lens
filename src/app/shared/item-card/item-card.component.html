@@ -38,5 +38,23 @@
         }
       </ul>
     }
+
+    <!--
+      A toggle button, so aria-pressed carries the state rather than the label
+      changing under the user. The hidden title gives each of the 25 buttons on
+      a results page a distinct accessible name — without it a screen reader
+      announces "Save, toggle button" two dozen times with no way to tell them
+      apart.
+    -->
+    <button
+      type="button"
+      class="card__save"
+      [class.is-saved]="isSaved()"
+      [attr.aria-pressed]="isSaved()"
+      (click)="toggleSaved()"
+    >
+      {{ isSaved() ? 'Saved' : 'Save' }}
+      <span class="visually-hidden">{{ item().title }}</span>
+    </button>
   </div>
 </article>

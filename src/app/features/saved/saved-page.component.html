@@ -1,0 +1,24 @@
+<h2>Saved items</h2>
+
+@if (count() === 0) {
+  <div class="empty">
+    <p><strong>You haven't saved anything yet.</strong></p>
+    <p>
+      Use the Save button on any result to keep it here. Saved items stay in
+      this browser — they aren't sent anywhere.
+    </p>
+    <p><a routerLink="/search">Search the collection</a></p>
+  </div>
+} @else {
+  <p class="count">
+    {{ count() }} saved {{ count() === 1 ? 'item' : 'items' }}
+  </p>
+
+  <ul class="results">
+    @for (item of items(); track item.id) {
+      <li>
+        <app-item-card [item]="item" />
+      </li>
+    }
+  </ul>
+}

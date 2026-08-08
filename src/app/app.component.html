@@ -17,6 +17,14 @@
           >Search</a
         >
       </li>
+      <li>
+        <a routerLink="/saved" routerLinkActive="is-active" ariaCurrentWhenActive="page">
+          Saved
+          @if (savedCount() > 0) {
+            <span class="badge">{{ savedCount() }}</span>
+          }
+        </a>
+      </li>
     </ul>
   </nav>
 </header>

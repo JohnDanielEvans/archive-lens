@@ -107,3 +107,36 @@
   background: var(--accent-wash);
   border-radius: 999px;
 }
+
+.card__save {
+  padding: 0.3125rem 0.875rem;
+  margin-top: 0.875rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+
+  &:hover {
+    background: var(--accent-wash);
+    border-color: var(--accent);
+  }
+
+  // The saved state is filled in rather than only re-labelled, so it reads at
+  // a glance across a grid. aria-pressed carries the same fact non-visually.
+  &.is-saved {
+    color: #fff;
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  &.is-saved:hover {
+    background: var(--accent-strong);
+  }
+}

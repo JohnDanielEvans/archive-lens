@@ -23,6 +23,12 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'saved',
+    title: 'Saved items — Archive Lens',
+    loadComponent: () =>
+      import('./features/saved/saved-page.component').then((m) => m.SavedPageComponent),
+  },
+  {
     path: 'item/:id',
     title: 'Item — Archive Lens',
     loadComponent: () =>

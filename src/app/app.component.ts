@@ -3,6 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter, skip } from 'rxjs';
 
+import { SavedItemsService } from './core/services/saved-items.service';
+
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
@@ -11,6 +13,9 @@ import { filter, skip } from 'rxjs';
 })
 export class AppComponent {
   private readonly router = inject(Router);
+
+  /** Drives the badge in the nav, so saving anywhere updates it immediately. */
+  readonly savedCount = inject(SavedItemsService).count;
 
   private readonly mainContent = viewChild.required<ElementRef<HTMLElement>>('mainContent');
 

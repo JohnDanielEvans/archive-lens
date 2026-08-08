@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
 import { CollectionItem } from '../../core/models/collection-item.model';
+import { SavedItemsService } from '../../core/services/saved-items.service';
 import { ItemCardComponent } from './item-card.component';
 
 describe('ItemCardComponent', () => {
@@ -20,6 +21,10 @@ describe('ItemCardComponent', () => {
   };
 
   beforeEach(async () => {
+    // Saved state persists to localStorage, so tests would otherwise leak
+    // into each other.
+    localStorage.removeItem('archive-lens.saved-items.v1');
+
     await TestBed.configureTestingModule({
       imports: [ItemCardComponent],
       providers: [provideRouter([])],
@@ -27,6 +32,8 @@ describe('ItemCardComponent', () => {
 
     fixture = TestBed.createComponent(ItemCardComponent);
   });
+
+  afterEach(() => localStorage.removeItem('archive-lens.saved-items.v1'));
 
   function render(item: Partial<CollectionItem> = {}): void {
     fixture.componentRef.setInput('item', { ...baseItem, ...item });
@@ -99,5 +106,53 @@ describe('ItemCardComponent', () => {
 
     expect(query('.card__meta')).toBeNull();
     expect(query('.card__description')).toBeNull();
+  });
+
+  describe('saving', () => {
+    function saveButton(): HTMLButtonElement {
+      return fixture.nativeElement.querySelector('.card__save');
+    }
+
+    it('starts unsaved and exposes the state via aria-pressed', () => {
+      render();
+
+      expect(saveButton().getAttribute('aria-pressed')).toBe('false');
+      expect(saveButton().textContent).toContain('Save');
+    });
+
+    it('saves on click and reflects it in the button', () => {
+      render();
+      saveButton().click();
+      fixture.detectChanges();
+
+      expect(saveButton().getAttribute('aria-pressed')).toBe('true');
+      expect(saveButton().textContent).toContain('Saved');
+      expect(TestBed.inject(SavedItemsService).isSaved('2005691065')).toBeTrue();
+    });
+
+    it('unsaves on a second click', () => {
+      render();
+      saveButton().click();
+      fixture.detectChanges();
+      saveButton().click();
+      fixture.detectChanges();
+
+      expect(saveButton().getAttribute('aria-pressed')).toBe('false');
+      expect(TestBed.inject(SavedItemsService).isSaved('2005691065')).toBeFalse();
+    });
+
+    it('includes the item title in the button name so cards are distinguishable', () => {
+      render();
+
+      expect(saveButton().textContent).toContain('Lighthouse, Biloxi, Mississippi');
+      expect(saveButton().querySelector('.visually-hidden')).not.toBeNull();
+    });
+
+    it('shows an already-saved item as saved', () => {
+      TestBed.inject(SavedItemsService).add({ ...baseItem });
+      render();
+
+      expect(saveButton().getAttribute('aria-pressed')).toBe('true');
+    });
   });
 });
