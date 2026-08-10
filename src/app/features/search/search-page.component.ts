@@ -26,24 +26,20 @@ type SearchState =
   styles: `
     /* ---- Landing state ------------------------------------------------- */
 
+    /* A soft wash instead of an image: no extra request, no layout shift, and
+       nothing to go stale.
+
+       Painted on the element rather than an absolutely-positioned ::before.
+       The earlier version used a negative horizontal inset to bleed past the
+       content column, which had nothing clipping it and pushed the page wider
+       than the viewport. A background is bounded by its own box, so it cannot.
+       (Note: no backticks in here — these styles live in a template literal.) */
     .hero {
-      position: relative;
       padding: clamp(2rem, 7vw, 4.5rem) 1rem clamp(2rem, 5vw, 3rem);
       text-align: center;
-    }
-
-    /* A soft wash behind the hero instead of an image: no extra request, no
-       layout shift, and nothing to go stale. */
-    .hero::before {
-      position: absolute;
-      inset: -20% -50% auto;
-      z-index: -1;
-      height: 32rem;
-      pointer-events: none;
-      content: '';
       background:
-        radial-gradient(50% 55% at 50% 40%, rgb(13 92 99 / 9%), transparent 70%),
-        radial-gradient(35% 45% at 72% 30%, rgb(138 51 36 / 6%), transparent 70%);
+        radial-gradient(70% 55% at 50% 25%, rgb(13 92 99 / 9%), transparent 72%),
+        radial-gradient(50% 45% at 78% 15%, rgb(138 51 36 / 6%), transparent 72%);
     }
 
     .hero__eyebrow {

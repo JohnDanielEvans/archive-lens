@@ -105,6 +105,14 @@ function nonBlank(control: AbstractControl<string>): ValidationErrors | null {
       background: var(--accent-strong);
     }
 
+    /* Once the button wraps onto its own line it looks stranded at its
+       natural width, so let it fill the row. */
+    @media (width <= 30rem) {
+      button {
+        width: 100%;
+      }
+    }
+
     /* :host() with a class selects the component's own element when it carries
        that class — how a parent-chosen variant reaches scoped styles without
        ::ng-deep. */
