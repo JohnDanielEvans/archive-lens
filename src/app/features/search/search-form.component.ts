@@ -28,6 +28,11 @@ function nonBlank(control: AbstractControl<string>): ValidationErrors | null {
   selector: 'app-search-form',
   imports: [ReactiveFormsModule],
   templateUrl: './search-form.component.html',
+  // A host class rather than a second template: the markup and behaviour are
+  // identical in both places, only the scale changes.
+  host: {
+    '[class.is-hero]': "variant() === 'hero'",
+  },
   styles: `
     form {
       display: flex;
@@ -99,6 +104,47 @@ function nonBlank(control: AbstractControl<string>): ValidationErrors | null {
     button:hover {
       background: var(--accent-strong);
     }
+
+    /* :host() with a class selects the component's own element when it carries
+       that class — how a parent-chosen variant reaches scoped styles without
+       ::ng-deep. */
+    :host(.is-hero) {
+      display: block;
+      max-width: 38rem;
+      margin-inline: auto;
+    }
+
+    :host(.is-hero) form {
+      gap: 0.5rem;
+      max-width: none;
+    }
+
+    :host(.is-hero) .field {
+      flex-basis: 14rem;
+    }
+
+    :host(.is-hero) label {
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    :host(.is-hero) .hint {
+      margin-bottom: 0.625rem;
+    }
+
+    :host(.is-hero) input {
+      padding: 0.9375rem 1.25rem;
+      font-size: 1.0625rem;
+      border-radius: 999px;
+    }
+
+    :host(.is-hero) button {
+      padding: 0.9375rem 2rem;
+      font-size: 1.0625rem;
+      border-radius: 999px;
+    }
   `,
 })
 export class SearchFormComponent {
@@ -109,6 +155,9 @@ export class SearchFormComponent {
    * on reload, on a shared link, and when the user presses Back.
    */
   readonly initialQuery = input('');
+
+  /** 'hero' renders the landing-page treatment; everything else is compact. */
+  readonly variant = input<'default' | 'hero'>('default');
 
   /**
    * Emits the trimmed query when the form is submitted and valid.

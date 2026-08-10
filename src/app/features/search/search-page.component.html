@@ -1,102 +1,140 @@
-<h2>Search the collection</h2>
-
-<app-search-form [initialQuery]="q()" (querySubmit)="onSearch($event)" />
-
 <!--
   Always rendered, never conditional: screen readers watch this element for
   text changes. Adding the element and its text at the same moment usually
   results in nothing being announced.
-
-  aria-hidden="true" on the visible equivalents below stops everything being
-  announced twice.
 -->
 <p class="visually-hidden" role="status">{{ statusMessage() }}</p>
 
 @if (status() === 'idle') {
-  <p class="prompt">Enter a search term above to explore the collection.</p>
-}
-
-@if (status() === 'loading') {
-  <p class="loading" aria-hidden="true"><span class="spinner"></span>Searching…</p>
-
   <!--
-    Placeholder cards, not a bare spinner: they show the shape of what's
-    coming and stop the layout jumping when results land. Entirely decorative,
-    so aria-hidden — the live region above already announces "Searching…".
+    The landing state is the first thing anyone sees, so it gets the editorial
+    treatment. Once a search runs, this collapses to a compact bar and the
+    results become the subject of the page.
   -->
-  <ul class="results skeletons" aria-hidden="true">
-    @for (placeholder of skeletons; track $index) {
-      <li>
-        <div class="skeleton-card">
-          <div class="skeleton skeleton--thumb"></div>
-          <div class="skeleton-card__body">
-            <div class="skeleton skeleton--title"></div>
-            <div class="skeleton skeleton--line"></div>
-            <div class="skeleton skeleton--line skeleton--short"></div>
-            <div class="skeleton skeleton--chips"></div>
-          </div>
-        </div>
-      </li>
-    }
-  </ul>
-}
+  <section class="hero">
+    <p class="hero__eyebrow">Library of Congress collections</p>
 
-@if (status() === 'error') {
-  <p class="error" aria-hidden="true">{{ statusMessage() }}</p>
-}
+    <h2 class="hero__title">Two centuries of American memory, one search box</h2>
 
-@if (results(); as found) {
-  @if (found.items.length === 0) {
-    <div class="empty">
-      <p><strong>No results found for “{{ q() }}”.</strong></p>
-      <ul>
-        <li>Check the spelling.</li>
-        <li>Try a broader term — “lighthouse” rather than “Biloxi lighthouse 1920”.</li>
-        <li>Try a place, subject, or person’s name.</li>
+    <p class="hero__lede">
+      Photographs, maps, manuscripts, sheet music and recordings — digitised,
+      public domain, and free to explore.
+    </p>
+
+    <app-search-form
+      variant="hero"
+      [initialQuery]="q()"
+      (querySubmit)="onSearch($event)"
+    />
+
+    <div class="suggestions">
+      <p id="suggestions-label" class="suggestions__label">Or start with</p>
+
+      <!-- Real links, so they can be opened in a new tab and are reachable by
+           keyboard without any extra handling. -->
+      <ul class="suggestions__list" aria-labelledby="suggestions-label">
+        @for (suggestion of suggestions; track suggestion) {
+          <li>
+            <a [routerLink]="['/search']" [queryParams]="{ q: suggestion }">
+              {{ suggestion }}
+            </a>
+          </li>
+        }
       </ul>
     </div>
-  } @else {
-    <p class="count" aria-hidden="true">{{ found.total.toLocaleString() }} results found</p>
+  </section>
+} @else {
+  <!-- The hero heading is gone in this state, so keep a heading for anyone
+       navigating by structure. The visible result count does the same job
+       for sighted users. -->
+  <h2 class="visually-hidden">Search results</h2>
 
-    <!-- A list, so screen readers announce "list of N items" and support
-         item-by-item navigation. -->
-    <ul class="results">
-      @for (item of found.items; track item.id) {
+  <div class="search-bar">
+    <app-search-form [initialQuery]="q()" (querySubmit)="onSearch($event)" />
+  </div>
+
+  @if (status() === 'loading') {
+    <p class="loading" aria-hidden="true"><span class="spinner"></span>Searching…</p>
+
+    <!--
+      Placeholder cards, not a bare spinner: they show the shape of what's
+      coming and stop the layout jumping when results land. Entirely decorative,
+      so aria-hidden — the live region above already announces "Searching…".
+    -->
+    <ul class="results skeletons" aria-hidden="true">
+      @for (placeholder of skeletons; track $index) {
         <li>
-          <app-item-card [item]="item" />
+          <div class="skeleton-card">
+            <div class="skeleton skeleton--thumb"></div>
+            <div class="skeleton-card__body">
+              <div class="skeleton skeleton--title"></div>
+              <div class="skeleton skeleton--line"></div>
+              <div class="skeleton skeleton--line skeleton--short"></div>
+              <div class="skeleton skeleton--chips"></div>
+            </div>
+          </div>
         </li>
       }
     </ul>
+  }
 
-    <!--
-      Page links are real links, not buttons: they change the URL, so they
-      should be openable in a new tab and reachable by the back button.
-      Unavailable directions are omitted rather than shown disabled — there is
-      nothing useful for a keyboard user to land on.
-    -->
-    @if (found.hasPrevious || found.hasNext) {
-      <nav class="pagination" aria-label="Search results pages">
-        @if (found.hasPrevious) {
-          <a
-            rel="prev"
-            [routerLink]="['/search']"
-            [queryParams]="{ q: q(), page: page() - 1 }"
-            >Previous page</a
-          >
+  @if (status() === 'error') {
+    <p class="error" aria-hidden="true">{{ statusMessage() }}</p>
+  }
+
+  @if (results(); as found) {
+    @if (found.items.length === 0) {
+      <div class="empty">
+        <p><strong>No results found for “{{ q() }}”.</strong></p>
+        <ul>
+          <li>Check the spelling.</li>
+          <li>Try a broader term — “lighthouse” rather than “Biloxi lighthouse 1920”.</li>
+          <li>Try a place, subject, or person’s name.</li>
+        </ul>
+      </div>
+    } @else {
+      <p class="count" aria-hidden="true">
+        {{ found.total.toLocaleString() }} results for “{{ q() }}”
+      </p>
+
+      <ul class="results">
+        @for (item of found.items; track item.id) {
+          <li>
+            <app-item-card [item]="item" />
+          </li>
         }
+      </ul>
 
-        <p class="pagination__status">Page {{ page() }}</p>
+      <!--
+        Page links are real links, not buttons: they change the URL, so they
+        should be openable in a new tab and reachable by the back button.
+        Unavailable directions are omitted rather than shown disabled — there is
+        nothing useful for a keyboard user to land on.
+      -->
+      @if (found.hasPrevious || found.hasNext) {
+        <nav class="pagination" aria-label="Search results pages">
+          @if (found.hasPrevious) {
+            <a
+              rel="prev"
+              [routerLink]="['/search']"
+              [queryParams]="{ q: q(), page: page() - 1 }"
+              >Previous page</a
+            >
+          }
 
-        @if (found.hasNext) {
-          <a
-            rel="next"
-            class="pagination__next"
-            [routerLink]="['/search']"
-            [queryParams]="{ q: q(), page: page() + 1 }"
-            >Next page</a
-          >
-        }
-      </nav>
+          <p class="pagination__status">Page {{ page() }}</p>
+
+          @if (found.hasNext) {
+            <a
+              rel="next"
+              class="pagination__next"
+              [routerLink]="['/search']"
+              [queryParams]="{ q: q(), page: page() + 1 }"
+              >Next page</a
+            >
+          }
+        </nav>
+      }
     }
   }
 }

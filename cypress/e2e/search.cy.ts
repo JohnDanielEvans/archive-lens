@@ -5,13 +5,26 @@
 const SEARCH_API = 'https://www.loc.gov/search/*';
 
 describe('Searching the collection', () => {
-  it('starts with a prompt and makes no request', () => {
+  it('starts on the landing hero and makes no request', () => {
     cy.intercept('GET', SEARCH_API, cy.spy().as('searchRequest'));
 
     cy.visit('/search');
 
-    cy.contains('Enter a search term above').should('be.visible');
+    cy.contains('Two centuries of American memory').should('be.visible');
+    cy.get('.suggestions__list a').should('have.length.greaterThan', 0);
     cy.get('@searchRequest').should('not.have.been.called');
+  });
+
+  it('runs a search from a suggestion chip', () => {
+    cy.intercept('GET', SEARCH_API, { fixture: 'search-lighthouse.json' }).as('search');
+
+    cy.visit('/search');
+    cy.contains('.suggestions__list a', 'lighthouses').click();
+
+    cy.location('search').should('eq', '?q=lighthouses');
+    cy.wait('@search');
+    cy.get('.hero').should('not.exist');
+    cy.get('app-item-card').should('have.length', 2);
   });
 
   it('puts the query in the URL and renders results', () => {

@@ -24,13 +24,109 @@ type SearchState =
   imports: [SearchFormComponent, ItemCardComponent, RouterLink],
   templateUrl: './search-page.component.html',
   styles: `
-    h2 {
-      margin: 0 0 1.5rem;
-      font-size: clamp(1.75rem, 4vw, 2.25rem);
+    /* ---- Landing state ------------------------------------------------- */
+
+    .hero {
+      position: relative;
+      padding: clamp(2rem, 7vw, 4.5rem) 1rem clamp(2rem, 5vw, 3rem);
+      text-align: center;
     }
 
-    .prompt,
+    /* A soft wash behind the hero instead of an image: no extra request, no
+       layout shift, and nothing to go stale. */
+    .hero::before {
+      position: absolute;
+      inset: -20% -50% auto;
+      z-index: -1;
+      height: 32rem;
+      pointer-events: none;
+      content: '';
+      background:
+        radial-gradient(50% 55% at 50% 40%, rgb(13 92 99 / 9%), transparent 70%),
+        radial-gradient(35% 45% at 72% 30%, rgb(138 51 36 / 6%), transparent 70%);
+    }
+
+    .hero__eyebrow {
+      margin: 0 0 1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .hero__title {
+      max-width: 18ch;
+      margin: 0 auto 1rem;
+      font-size: clamp(2.125rem, 6vw, 3.5rem);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+
+    .hero__lede {
+      max-width: 34rem;
+      margin: 0 auto clamp(1.75rem, 4vw, 2.5rem);
+      font-size: clamp(1rem, 2.2vw, 1.125rem);
+      color: var(--ink-muted);
+      text-wrap: pretty;
+    }
+
+    .suggestions {
+      margin-top: 2rem;
+    }
+
+    .suggestions__label {
+      margin: 0 0 0.75rem;
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .suggestions__list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .suggestions__list a {
+      display: inline-block;
+      padding: 0.4375rem 1rem;
+      font-size: 0.875rem;
+      color: var(--ink);
+      text-decoration: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      transition:
+        border-color 0.15s ease,
+        background-color 0.15s ease,
+        transform 0.15s ease;
+    }
+
+    .suggestions__list a:hover {
+      color: var(--accent);
+      background: var(--accent-wash);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    /* ---- Results state -------------------------------------------------- */
+
+    .search-bar {
+      padding-bottom: 1.5rem;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
     .loading {
+      display: flex;
+      gap: 0.625rem;
+      align-items: center;
       margin: 2rem 0 0;
       font-size: 1.0625rem;
       color: var(--ink-muted);
@@ -312,6 +408,20 @@ export class SearchPageComponent {
 
   /** Placeholder cards shown while a search is in flight. */
   readonly skeletons = Array.from({ length: 6 });
+
+  /**
+   * Starting points for the landing page. An empty search box is a hard place
+   * to begin with an archive this broad. Each was checked against the live API
+   * for a healthy number of results, most of them with images.
+   */
+  readonly suggestions = [
+    'lighthouses',
+    'civil war',
+    'jazz',
+    'railroads',
+    'national parks',
+    "world's fair",
+  ] as const;
 
   /**
    * Text for the live region. It is a single always-rendered element whose

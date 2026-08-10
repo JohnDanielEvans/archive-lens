@@ -66,7 +66,9 @@ describe('app routes', () => {
 
     expect(title()).toBe('Search — Archive Lens');
     expect(view).toBeTruthy();
-    expect(harness.routeNativeElement?.textContent).toContain('Search the collection');
+    expect(harness.routeNativeElement?.textContent).toContain(
+      'Two centuries of American memory',
+    );
   });
 
   it('lazily loads the saved page and sets its title', async () => {

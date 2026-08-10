@@ -55,11 +55,33 @@ describe('SearchPageComponent', () => {
     pagination: { current: 1, perpage: 25, total: 1 },
   };
 
-  it('shows the idle prompt and makes no request without a query', () => {
+  it('shows the landing hero and makes no request without a query', () => {
     setQuery('');
 
-    expect(text()).toContain('Enter a search term');
+    expect(fixture.nativeElement.querySelector('.hero')).not.toBeNull();
+    expect(text()).toContain('Two centuries of American memory');
     httpMock.expectNone(() => true);
+  });
+
+  it('offers suggested searches as real links on the landing page', () => {
+    setQuery('');
+
+    const suggestions = fixture.nativeElement.querySelectorAll('.suggestions__list a');
+    expect(suggestions.length).toBeGreaterThan(0);
+    // Links rather than buttons, so they work with new-tab and Back.
+    expect(suggestions[0].getAttribute('href')).toContain('/search?q=');
+    httpMock.expectNone(() => true);
+  });
+
+  it('replaces the hero with a compact search bar once a query runs', () => {
+    setQuery('lighthouse');
+
+    expect(fixture.nativeElement.querySelector('.hero')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.search-bar')).not.toBeNull();
+    // The heading is still there for structural navigation, just not visible.
+    expect(fixture.nativeElement.querySelector('h2.visually-hidden')).not.toBeNull();
+
+    respondWith({ results: [], pagination: { total: 0 } });
   });
 
   it('survives an absent query parameter', () => {
@@ -68,7 +90,7 @@ describe('SearchPageComponent', () => {
     fixture.componentRef.setInput('q', undefined);
     fixture.detectChanges();
 
-    expect(text()).toContain('Enter a search term');
+    expect(fixture.nativeElement.querySelector('.hero')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('#search-query').value).toBe('');
     httpMock.expectNone(() => true);
   });
